@@ -1,4 +1,13 @@
----
+name: "Regression Testing"
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      exampleInput:
+        default: xys
+        description: "xyz"
+        required: true
+
 jobs:
   regression:
     name: regression
@@ -10,12 +19,3 @@ jobs:
           path: regression
       - name: "Test Action"
         uses: ./regression
-
-name: "Regression Testing"
-"on":
-  workflow_dispatch:
-    inputs:
-      exampleInput:
-        default: xys
-        description: "xyz"
-        required: true
