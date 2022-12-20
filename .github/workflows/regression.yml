@@ -1,0 +1,21 @@
+---
+jobs:
+  regression:
+    name: regression
+    runs-on: ubuntu-20.04
+    steps:
+      - name: "Git Checkout"
+        uses: actions/checkout@v3
+        with:
+          path: regression
+      - name: "Test Action"
+        uses: ./regression
+
+name: "Regression Testing"
+"on":
+  workflow_dispatch:
+    inputs:
+      exampleInput:
+        default: xys
+        description: "xyz"
+        required: true

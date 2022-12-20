@@ -1,0 +1,12 @@
+name: "Action Name"
+author: "NickLiffen"
+description: "Action Description"
+outputs:
+  outputName:
+    description: "Output Description"
+runs:
+  using: "node16"
+  main: "dist/index.js"
+branding:
+  icon: "target"
+  color: "blue"
