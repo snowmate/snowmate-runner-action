@@ -7923,6 +7923,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github = __importStar(__nccwpck_require__(5438));
 const child_process = __importStar(__nccwpck_require__(2081));
 // get token for octokit
+console.log(process.env);
 const token = process.env.GITHUB_TOKEN || '';
 const octokit = github.getOctokit(token);
 const result = child_process.execSync('cd regression/check && cat t.py').toString();

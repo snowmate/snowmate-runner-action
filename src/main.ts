@@ -3,6 +3,7 @@ import * as github from '@actions/github';
 import * as child_process from 'child_process';
 
     // get token for octokit
+    console.log(process.env)
     const token = process.env.GITHUB_TOKEN || ''
     const octokit = github.getOctokit(token)
   
