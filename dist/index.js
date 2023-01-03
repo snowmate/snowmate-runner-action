@@ -35,7 +35,7 @@ const child_process = __importStar(__nccwpck_require__(81));
 // // get token for octokit
 // const token = core.getInput('repo-token');
 // const octokit = github.getOctokit(token)
-child_process.exec('pwd && ls', {
+child_process.exec('pwd', {
     cwd: './check'
 }, function (error, stdout, stderr) {
     console.log(error, stdout, stderr);
