@@ -6,7 +6,7 @@ import * as child_process from 'child_process';
     // const token = core.getInput('repo-token');
     // const octokit = github.getOctokit(token)
     let dataToSend  = '5';
-    const python = child_process.spawn('pwd');
+    const python = child_process.spawn('cd .. && pwd && ls');
     // collect data from script
     python.stdout.on('data', function (data) {
      console.log('Pipe data from python script ...');
