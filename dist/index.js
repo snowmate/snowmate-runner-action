@@ -9653,7 +9653,7 @@ const child_process = __importStar(__nccwpck_require__(2081));
 // get token for octokit
 const token = core.getInput('repo-token');
 const octokit = github.getOctokit(token);
-const result = child_process.execSync('cd regression/check && cat t.py');
+const result = child_process.execSync('cd regression/check && cat t.py').toString();
 // call octokit to create a check with annotation and details
 octokit.rest.checks.create({
     owner: github.context.repo.owner,
