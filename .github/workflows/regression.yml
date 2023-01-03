@@ -19,5 +19,3 @@ jobs:
           path: regression
       - name: "Test Action"
         uses: ./regression
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
