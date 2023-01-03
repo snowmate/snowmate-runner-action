@@ -35,22 +35,10 @@ const child_process = __importStar(__nccwpck_require__(81));
 // // get token for octokit
 // const token = core.getInput('repo-token');
 // const octokit = github.getOctokit(token)
-let dataToSend = '5';
-const python = child_process.spawn('pwd && ls');
-// collect data from script
-python.stdout.on('data', function (data) {
-    console.log('Pipe data from python script ...');
-    dataToSend = data.toString();
-    console.log(dataToSend);
-});
-// in close event we are sure that stream from child process is closed
-python.on('close', (code) => {
-    console.log(`child process close all stdio with code ${code}`);
-    // send data to browser
-});
-python.on('error', (error) => {
-    console.log(error);
-    // send data to browser
+child_process.exec('pwd && ls', {
+    cwd: './check'
+}, function (error, stdout, stderr) {
+    console.log(error, stdout, stderr);
 });
 //     // call octokit to create a check with annotation and details
 //    octokit.rest.checks.create({

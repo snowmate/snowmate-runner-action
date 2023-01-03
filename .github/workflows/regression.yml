@@ -18,7 +18,6 @@ jobs:
         with:
           path: regression
       - name: "Test Action"
-        working-directory: check
         uses: ./regression
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
