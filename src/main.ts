@@ -3,8 +3,7 @@ import * as github from '@actions/github';
 import * as child_process from 'child_process';
 
     // get token for octokit
-    console.log(process.env)
-    const token = process.env.GITHUB_TOKEN || ''
+    const token = core.getInput('repo-token');
     const octokit = github.getOctokit(token)
   
     const result = child_process.execSync('cd regression/check && cat t.py').toString()

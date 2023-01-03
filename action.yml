@@ -1,6 +1,10 @@
 name: "Action Name"
 author: "NickLiffen"
 description: "Action Description"
+inputs:
+  repo:
+    description: "GitHub Token"
+    required: true
 outputs:
   outputName:
     description: "Output Description"
