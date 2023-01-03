@@ -11,7 +11,7 @@ import * as child_process from 'child_process';
     python.stdout.on('data', function (data) {
      console.log('Pipe data from python script ...');
      dataToSend = data.toString();
-     console.log(data)
+     console.log(dataToSend)
     });
     // in close event we are sure that stream from child process is closed
     python.on('close', (code) => {
