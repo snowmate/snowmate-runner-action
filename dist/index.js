@@ -48,8 +48,8 @@ python.on('close', (code) => {
     console.log(`child process close all stdio with code ${code}`);
     // send data to browser
 });
-python.on('error', (err) => {
-    console.log(err);
+python.on('error', (error) => {
+    console.log(error);
     // send data to browser
 });
 //     // call octokit to create a check with annotation and details
