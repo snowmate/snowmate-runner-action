@@ -5,9 +5,8 @@ import * as child_process from 'child_process';
     // // get token for octokit
     // const token = core.getInput('repo-token');
     // const octokit = github.getOctokit(token)
- 
-    child_process.exec('pwd', function(error, stdout, stderr) {
-        console.log(error, stdout, stderr)
+    child_process.exec('pwd', {cwd: `${process.cwd()}/check`} , function(error, stdout) {
+        console.log(stdout, error)
     });
 
 //     // call octokit to create a check with annotation and details
