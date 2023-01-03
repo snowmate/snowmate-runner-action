@@ -5,12 +5,14 @@ import * as child_process from 'child_process';
     // get token for octokit
     const token = core.getInput('repo-token');
     const octokit = github.getOctokit(token)
+    let dataToSend  = '5';
 
     const python = child_process.spawn('ls');
     // collect data from script
     python.stdout.on('data', function (data) {
      console.log('Pipe data from python script ...');
-     console.log(data.toString())
+     dataToSend = data.toString();
+     console.log(data)
     });
     // in close event we are sure that stream from child process is closed
     python.on('close', (code) => {
@@ -29,7 +31,7 @@ import * as child_process from 'child_process';
         conclusion: 'failure',
         output: {
             title: 'README.md must start with a title',
-            summary: 'Please use markdown syntax to create a title',
+            summary: dataToSend,
         }
     });
    
