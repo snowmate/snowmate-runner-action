@@ -6,14 +6,12 @@ import * as child_process from 'child_process';
     // const token = core.getInput('repo-token');
     // const octokit = github.getOctokit(token)
     let dataToSend  = '5';
-    core.debug('85')
-
     const python = child_process.spawn('ls');
     // collect data from script
     python.stdout.on('data', function (data) {
      console.log('Pipe data from python script ...');
      dataToSend = data.toString();
-     core.debug(data)
+     console.log(data)
     });
     // in close event we are sure that stream from child process is closed
     python.on('close', (code) => {
