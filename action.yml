@@ -1,7 +1,6 @@
 name: "Action Name"
 author: "NickLiffen"
 description: "Action Description"
-inputs:
 outputs:
   outputName:
     description: "Output Description"
