@@ -6,13 +6,13 @@ import * as child_process from 'child_process';
     const token = core.getInput('repo-token');
     const octokit = github.getOctokit(token)
   
-    const result = child_process.execSync('cd regression/check && cat t.py').toString()
+    const result = child_process.execSync('cd regression/check && ls && cat t.py').toString()
 
     // call octokit to create a check with annotation and details
    octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
-        name: 'Readme Validator',
+        name: 'Snowmate Tests',
         head_sha: github.context.sha,
         status: 'completed',
         conclusion: 'failure',
