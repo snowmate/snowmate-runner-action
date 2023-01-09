@@ -17,7 +17,7 @@ import * as child_process from 'child_process';
         status: 'completed',
         conclusion: 'failure',
         output: {
-            title: 'README.md must ssfsfsdftart witdfgdfgdfgh a title',
+            title: 'README.md must ssfsfsdftart witdfgdfgdfgsdfsfsfh a title',
             summary: result,
         }
     });
