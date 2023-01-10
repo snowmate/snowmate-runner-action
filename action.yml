@@ -2,7 +2,7 @@ name: "Snowmate Runner"
 author: "Snowmate"
 description: "Snowmate Runner"
 inputs:
-  repo-token:
+  github-token:
     description: "GitHub Token"
     required: true
   project-path:

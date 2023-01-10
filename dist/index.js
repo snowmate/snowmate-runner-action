@@ -9649,10 +9649,42 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const child_process = __importStar(__nccwpck_require__(2081));
+const runRunner = () => {
+    let summary;
+    let conclusion;
+    let title;
+    try {
+        summary = child_process.execSync('ls').toString();
+        conclusion = 'success';
+        title = 'The tests successfully passed';
+    }
+    catch (error) {
+        summary = error.message;
+        conclusion = 'failure';
+        title = 'The tests were failed';
+        core.setFailed(title);
+    }
+    octokit.rest.checks.create({
+        owner: github.context.repo.owner,
+        epo: github.context.repo.repo,
+        name: "Snowmate Tests",
+        head_sha: github.context.sha,
+        status: "completed",
+        conclusion: conclusion,
+        output: {
+            title,
+            summary
+        },
+    });
+};
 // get token for octokit
-const token = core.getInput('repo-token');
+const token = core.getInput("github-token");
+const projectPath = core.getInput("project-path");
+const projectID = core.getInput("project-id");
+const clientID = core.getInput("client-id");
+const secretKey = core.getInput("secret-key");
 const octokit = github.getOctokit(token);
-console.log(github.context.runId);
 let beforeBranch;
 let beforeCommit;
 switch (github.context.eventName) {
@@ -9668,24 +9700,12 @@ switch (github.context.eventName) {
         break;
     }
     default: {
-        //statements; 
+        // Todo: add message to user that explain the runner is not supported in this case.
         break;
     }
 }
-console.log(beforeBranch, beforeCommit);
-//     // call octokit to create a check with annotation and details
-//    octokit.rest.checks.create({
-//         owner: github.context.repo.owner,
-//         repo: github.context.repo.repo,
-//         name: 'Snowmate Tests',
-//         head_sha: github.context.sha,
-//         status: 'completed',
-//         conclusion: 'failure',
-//         output: {
-//             title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
-//             summary: 'result',
-//         }
-//     });
+console.log(beforeBranch, beforeCommit, github.context.runId);
+runRunner();
 
 
 /***/ }),
@@ -9703,6 +9723,14 @@ module.exports = eval("require")("encoding");
 
 "use strict";
 module.exports = require("assert");
+
+/***/ }),
+
+/***/ 2081:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");
 
 /***/ }),
 
