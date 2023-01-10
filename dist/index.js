@@ -9657,8 +9657,8 @@ let beforeBranch;
 let beforeCommit;
 switch (github.context.eventName) {
     case "push": {
-        beforeBranch = github.context.ref;
-        console.log(github.context.payload);
+        beforeBranch = github.context.payload.ref;
+        beforeCommit = github.context.payload.before;
         break;
     }
     case "pull_request": {
