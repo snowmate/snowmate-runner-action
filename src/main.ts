@@ -19,7 +19,7 @@ const runRunner = () => {
   } finally {
     octokit.rest.checks.create({
       owner: github.context.repo.owner,
-      epo: github.context.repo.repo,
+      repo: github.context.repo.repo,
       name: "Snowmate Tests",
       head_sha: github.context.sha,
       status: "completed",
