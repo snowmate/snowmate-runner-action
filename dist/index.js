@@ -9656,7 +9656,7 @@ const runRunner = () => {
     let conclusion;
     let title;
     try {
-        summary = child_process.execSync("ls").toString();
+        summary = child_process.execSync("cd sdfgfg").toString();
         conclusion = "success";
         title = "The tests successfully passed";
     }
