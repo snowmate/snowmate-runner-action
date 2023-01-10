@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: "Git Checkout"
         uses: actions/checkout@v3
+        with:
+          path: regression
       - name: "Test Action"
         uses: ./regression
         with:
