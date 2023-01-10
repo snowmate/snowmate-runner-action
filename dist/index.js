@@ -9651,32 +9651,35 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const child_process = __importStar(__nccwpck_require__(2081));
 const runRunner = () => {
+    console.log('start');
     let summary;
     let conclusion;
     let title;
     try {
-        summary = child_process.execSync('ls').toString();
-        conclusion = 'success';
-        title = 'The tests successfully passed';
+        summary = child_process.execSync("ls").toString();
+        conclusion = "success";
+        title = "The tests successfully passed";
     }
     catch (error) {
         summary = error.message;
-        conclusion = 'failure';
-        title = 'The tests were failed';
+        conclusion = "failure";
+        title = "The tests were failed";
         core.setFailed(title);
     }
-    octokit.rest.checks.create({
-        owner: github.context.repo.owner,
-        epo: github.context.repo.repo,
-        name: "Snowmate Tests",
-        head_sha: github.context.sha,
-        status: "completed",
-        conclusion: conclusion,
-        output: {
-            title,
-            summary
-        },
-    });
+    finally {
+        octokit.rest.checks.create({
+            owner: github.context.repo.owner,
+            epo: github.context.repo.repo,
+            name: "Snowmate Tests",
+            head_sha: github.context.sha,
+            status: "completed",
+            conclusion: conclusion,
+            output: {
+                title,
+                summary,
+            },
+        });
+    }
 };
 // get token for octokit
 const token = core.getInput("github-token");
