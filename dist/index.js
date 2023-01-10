@@ -9652,20 +9652,38 @@ const github = __importStar(__nccwpck_require__(5438));
 // get token for octokit
 const token = core.getInput('repo-token');
 const octokit = github.getOctokit(token);
-console.log(github.context.eventName);
-// call octokit to create a check with annotation and details
-octokit.rest.checks.create({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    name: 'Snowmate Tests',
-    head_sha: github.context.sha,
-    status: 'completed',
-    conclusion: 'failure',
-    output: {
-        title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
-        summary: 'result',
+console.log(github.context.runId);
+let beforeBranch;
+let beforeCommit;
+switch (github.context.action) {
+    case "push": {
+        console.log('push');
+        break;
     }
-});
+    case "pull_request": {
+        const pr = JSON.parse(github.context.payload.pull_request?.body || '');
+        console.log(pr);
+        break;
+    }
+    default: {
+        //statements; 
+        break;
+    }
+}
+console.log(beforeBranch, beforeCommit);
+//     // call octokit to create a check with annotation and details
+//    octokit.rest.checks.create({
+//         owner: github.context.repo.owner,
+//         repo: github.context.repo.repo,
+//         name: 'Snowmate Tests',
+//         head_sha: github.context.sha,
+//         status: 'completed',
+//         conclusion: 'failure',
+//         output: {
+//             title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
+//             summary: 'result',
+//         }
+//     });
 
 
 /***/ }),
