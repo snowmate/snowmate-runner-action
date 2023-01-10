@@ -12,7 +12,7 @@ import * as child_process from 'child_process';
     switch(github.context.eventName) { 
         case "push": { 
            beforeBranch = github.context.ref
-           console.log("dfdfd")
+           console.log("dfdffd")
            break; 
         } 
         case "pull_request": {
