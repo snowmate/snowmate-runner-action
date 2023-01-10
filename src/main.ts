@@ -9,8 +9,7 @@ import * as child_process from 'child_process';
 
     let beforeBranch;
     let beforeCommit
-    
-    switch(github.context.action) { 
+    switch(github.context.eventName) { 
         case "push": { 
            console.log('push')
            break; 

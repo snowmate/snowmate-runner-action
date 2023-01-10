@@ -9655,7 +9655,7 @@ const octokit = github.getOctokit(token);
 console.log(github.context.runId);
 let beforeBranch;
 let beforeCommit;
-switch (github.context.action) {
+switch (github.context.eventName) {
     case "push": {
         console.log('push');
         break;
