@@ -5,7 +5,7 @@ import * as child_process from 'child_process';
     // get token for octokit
     const token = core.getInput('repo-token');
     const octokit = github.getOctokit(token)
-    console.log(github.context.payload, github.context.action)
+    console.log(github.context.eventName)
 
     
   

@@ -9652,7 +9652,7 @@ const github = __importStar(__nccwpck_require__(5438));
 // get token for octokit
 const token = core.getInput('repo-token');
 const octokit = github.getOctokit(token);
-console.log(github.context.payload, github.context.action);
+console.log(github.context.eventName);
 // call octokit to create a check with annotation and details
 octokit.rest.checks.create({
     owner: github.context.repo.owner,
