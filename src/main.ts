@@ -6,6 +6,9 @@ import * as child_process from 'child_process';
     const token = core.getInput('repo-token');
     const octokit = github.getOctokit(token)
     console.log(github.context.runId)
+
+    let beforeBranch;
+    let beforeCommit
     
     switch(github.context.action) { 
         case "push": { 
@@ -13,29 +16,31 @@ import * as child_process from 'child_process';
            break; 
         } 
         case "pull_request": { 
-            console.log('pull_request')
+            const pr = JSON.parse(github.context.payload.pull_request.body)
+            console.log(pr)
             break; 
         } 
         default: { 
            //statements; 
            break; 
         } 
-     }     
+     }
+     console.log(beforeBranch, beforeCommit)
 
     
   
 
-    // call octokit to create a check with annotation and details
-   octokit.rest.checks.create({
-        owner: github.context.repo.owner,
-        repo: github.context.repo.repo,
-        name: 'Snowmate Tests',
-        head_sha: github.context.sha,
-        status: 'completed',
-        conclusion: 'failure',
-        output: {
-            title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
-            summary: 'result',
-        }
-    });
+//     // call octokit to create a check with annotation and details
+//    octokit.rest.checks.create({
+//         owner: github.context.repo.owner,
+//         repo: github.context.repo.repo,
+//         name: 'Snowmate Tests',
+//         head_sha: github.context.sha,
+//         status: 'completed',
+//         conclusion: 'failure',
+//         output: {
+//             title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
+//             summary: 'result',
+//         }
+//     });
    
