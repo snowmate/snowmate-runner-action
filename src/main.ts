@@ -5,9 +5,10 @@ import * as child_process from 'child_process';
     // get token for octokit
     const token = core.getInput('repo-token');
     const octokit = github.getOctokit(token)
-    console.log(github.context.runId)
+    console.log(github.context.payload, github.context.action)
+
+    
   
-    const result = child_process.execSync('cd regression/check && ls && cat t.py').toString()
 
     // call octokit to create a check with annotation and details
    octokit.rest.checks.create({
@@ -19,7 +20,7 @@ import * as child_process from 'child_process';
         conclusion: 'failure',
         output: {
             title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
-            summary: result,
+            summary: 'result',
         }
     });
    

@@ -9649,12 +9649,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const child_process = __importStar(__nccwpck_require__(2081));
 // get token for octokit
 const token = core.getInput('repo-token');
 const octokit = github.getOctokit(token);
-console.log(github.context.runId);
-const result = child_process.execSync('cd regression/check && ls && cat t.py').toString();
+console.log(github.context.payload, github.context.action);
 // call octokit to create a check with annotation and details
 octokit.rest.checks.create({
     owner: github.context.repo.owner,
@@ -9665,7 +9663,7 @@ octokit.rest.checks.create({
     conclusion: 'failure',
     output: {
         title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
-        summary: result,
+        summary: 'result',
     }
 });
 
@@ -9685,14 +9683,6 @@ module.exports = eval("require")("encoding");
 
 "use strict";
 module.exports = require("assert");
-
-/***/ }),
-
-/***/ 2081:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("child_process");
 
 /***/ }),
 

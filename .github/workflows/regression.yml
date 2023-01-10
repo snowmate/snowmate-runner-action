@@ -1,6 +1,7 @@
 name: "Snowmate Tests"
 on:
   push:
+  pull_request:
 jobs:
   run-tests:
     name: Run Tests
