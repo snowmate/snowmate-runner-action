@@ -9661,7 +9661,7 @@ switch (github.context.eventName) {
         break;
     }
     case "pull_request": {
-        const pr = github.context.payload.pull_request?.body;
+        const pr = github.context.payload;
         console.log(pr);
         break;
     }

@@ -15,7 +15,7 @@ import * as child_process from 'child_process';
            break; 
         } 
         case "pull_request": { 
-            const pr = github.context.payload.pull_request?.body
+            const pr = github.context.payload
             console.log(pr)
             break; 
         } 
