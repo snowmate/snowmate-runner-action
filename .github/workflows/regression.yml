@@ -1,23 +1,18 @@
-name: "Regression Testing"
+name: "Snowmate Tests"
 on:
   push:
-  workflow_dispatch:
-    inputs:
-      exampleInput:
-        default: xys
-        description: "xyz"
-        required: true
-
 jobs:
-  regression:
-    name: regression
+  run-tests:
+    name: Run Tests
     runs-on: ubuntu-20.04
     steps:
       - name: "Git Checkout"
         uses: actions/checkout@v3
-        with:
-          path: regression
       - name: "Test Action"
         uses: ./regression
         with:
+          project-path: ttt
+          project-id: 123
+          client-id: 1234
+          secret-key: 555555
           repo-token: ${{ secrets.GITHUB_TOKEN }}

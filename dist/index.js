@@ -9653,6 +9653,7 @@ const child_process = __importStar(__nccwpck_require__(2081));
 // get token for octokit
 const token = core.getInput('repo-token');
 const octokit = github.getOctokit(token);
+console.log(github.context.runId);
 const result = child_process.execSync('cd regression/check && ls && cat t.py').toString();
 // call octokit to create a check with annotation and details
 octokit.rest.checks.create({
@@ -9663,7 +9664,7 @@ octokit.rest.checks.create({
     status: 'completed',
     conclusion: 'failure',
     output: {
-        title: 'README.md must start with a title',
+        title: 'README.md must ssfsfsdftart witdfgdfgdffgdgdsdfsffgdfgfdggsdfdgdfgdgfsfsfh a title',
         summary: result,
     }
 });
