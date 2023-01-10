@@ -14,9 +14,10 @@ import * as child_process from 'child_process';
            console.log('push')
            break; 
         } 
-        case "pull_request": { 
-            const pr = github.context.payload
-            console.log(pr)
+        case "pull_request": {
+            const pull_request = github.context.payload.pull_request
+            beforeBranch = pull_request?.base.ref
+            beforeCommit = pull_request?.base.sha
             break; 
         } 
         default: { 
