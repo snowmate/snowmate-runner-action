@@ -9675,6 +9675,7 @@ const runRunner = (baseBranch, baseCommit) => {
         core.setFailed(title);
     }
     finally {
+        console.log("finaly");
         const octokit = github.getOctokit(githubToken);
         octokit.rest.checks.create({
             owner: github.context.repo.owner,
@@ -9709,6 +9710,7 @@ switch (github.context.eventName) {
         break;
     }
 }
+console.log("test");
 runRunner(beforeBranch, beforeCommit);
 
 
