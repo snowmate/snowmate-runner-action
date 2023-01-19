@@ -27,6 +27,7 @@ const runRunner = (baseBranch: string, baseCommit: string) => {
 		title = "One or more tests had failed"
 		core.setFailed(title)
 	} finally {
+		console.log("finaly")
 		const octokit = github.getOctokit(githubToken)
 		octokit.rest.checks.create({
 			owner: github.context.repo.owner,
@@ -64,4 +65,5 @@ default: {
 	break
 }
 }
+console.log("test")
 runRunner(beforeBranch, beforeCommit)
