@@ -1,22 +1,22 @@
-name: "Snowmate Tests"
+name: 'Snowmate Tests'
 on:
   push:
   pull_request:
 jobs:
   run-tests:
-    name: Run Tests
+    name: Snowmate
     runs-on: ubuntu-20.04
     steps:
-      - name: "Git Checkout"
+      - name: 'Git Checkout'
         uses: actions/checkout@v3
         with:
           path: regression
       # - name: "Setup Project"
-      - name: "Test Action"
+      - name: 'Test Action'
         uses: ./regression
         with:
-          project-path: ttt
-          project-id: 123
-          client-id: 1234
-          secret-key: 555555
+          # project-path: ttt
+          # project-id: 123
+          # client-id: 1234
+          # secret-key: 555555
           github-token: ${{ secrets.GITHUB_TOKEN }}

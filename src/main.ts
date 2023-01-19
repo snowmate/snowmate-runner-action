@@ -1,64 +1,67 @@
-import * as core from "@actions/core";
-import * as github from "@actions/github";
-import * as child_process from "child_process";
+import * as core from "@actions/core"
+import * as github from "@actions/github"
+import * as child_process from "child_process"
 
-const runRunner = () => {
-  console.log('start')
-  let summary;
-  let conclusion;
-  let title;
-  try {
-    summary = child_process.execSync("cd sdfgfg").toString();
-    conclusion = "success";
-    title = "The tests successfully passed";
-  } catch (error: any) {
-    summary = error.message;
-    conclusion = "failure";
-    title = "The tests were failed";
-    core.setFailed(title);
-  } finally {
-    octokit.rest.checks.create({
-      owner: github.context.repo.owner,
-      repo: github.context.repo.repo,
-      name: "Snowmate Tests",
-      head_sha: github.context.sha,
-      status: "completed",
-      conclusion: conclusion,
-      output: {
-        title,
-        summary,
-      },
-    });
-  }
-};
+const runRunner = (baseBranch: string, baseCommit: string) => {
+	let summary
+	let conclusion
+	let title
 
-// get token for octokit
-const token = core.getInput("github-token");
-const projectPath = core.getInput("project-path");
-const projectID = core.getInput("project-id");
-const clientID = core.getInput("client-id");
-const secretKey = core.getInput("secret-key");
+	const githubToken = core.getInput("github-token")
+	// const projectPath = core.getInput("project-path")
+	// const projectID = core.getInput("project-id")
+	// const clientID = core.getInput("client-id")
+	// const secretKey = core.getInput("secret-key")
 
-const octokit = github.getOctokit(token);
-
-let beforeBranch;
-let beforeCommit;
-switch (github.context.eventName) {
-  case "push": {
-    beforeBranch = github.context.payload.ref;
-    beforeCommit = github.context.payload.before;
-    break;
-  }
-  case "pull_request": {
-    const pull_request = github.context.payload.pull_request;
-    beforeBranch = pull_request?.base.ref;
-    beforeCommit = pull_request?.base.sha;
-    break;
-  }
-  default: {
-    // Todo: add message to user that explain the runner is not supported in this case.
-    break;
-  }
+	try {
+		// const runnerCommand = `cd ${projectPath} && snowmate run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --base-branch ${baseBranch} --base-commit ${baseCommit} --workflow-run-id ${github.context.runId}`
+		const runnerCommand = "pwd"
+		summary = child_process.execSync(runnerCommand).toString()
+		conclusion = "success"
+		title = "All tests successfully passed"
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			summary = error.message
+		}
+		conclusion = "failure"
+		title = "One or more tests had failed"
+		core.setFailed(title)
+	} finally {
+		const octokit = github.getOctokit(githubToken)
+		octokit.rest.checks.create({
+			owner: github.context.repo.owner,
+			repo: github.context.repo.repo,
+			name: "Snowmate Regression Tests",
+			head_sha: github.context.sha,
+			status: "completed",
+			conclusion: conclusion,
+			output: {
+				title,
+				summary,
+			},
+		})
+	}
 }
-console.log(beforeBranch, beforeCommit, github.context.runId);
-runRunner();
+
+let beforeBranch
+let beforeCommit
+switch (github.context.eventName) {
+case "push": {
+	beforeBranch = github.context.payload.ref
+	beforeCommit = github.context.payload.before
+	break
+}
+case "pull_request": {
+	const pull_request = github.context.payload.pull_request
+	beforeBranch = pull_request?.base.ref
+	beforeCommit = pull_request?.base.sha
+	break
+}
+default: {
+	core.setFailed(
+		"Stopping Snowmate, currently our tests only run on a push/pull request."
+	)
+	break
+}
+}
+runRunner(beforeBranch, beforeCommit)

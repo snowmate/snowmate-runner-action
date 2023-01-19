@@ -9650,27 +9650,36 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const child_process = __importStar(__nccwpck_require__(2081));
-const runRunner = () => {
-    console.log('start');
+const runRunner = (baseBranch, baseCommit) => {
     let summary;
     let conclusion;
     let title;
+    const githubToken = core.getInput("github-token");
+    // const projectPath = core.getInput("project-path")
+    // const projectID = core.getInput("project-id")
+    // const clientID = core.getInput("client-id")
+    // const secretKey = core.getInput("secret-key")
     try {
-        summary = child_process.execSync("cd sdfgfg").toString();
+        // const runnerCommand = `cd ${projectPath} && snowmate run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --base-branch ${baseBranch} --base-commit ${baseCommit} --workflow-run-id ${github.context.runId}`
+        const runnerCommand = "pwd";
+        summary = child_process.execSync(runnerCommand).toString();
         conclusion = "success";
-        title = "The tests successfully passed";
+        title = "All tests successfully passed";
     }
     catch (error) {
-        summary = error.message;
+        if (error instanceof Error) {
+            summary = error.message;
+        }
         conclusion = "failure";
-        title = "The tests were failed";
+        title = "One or more tests had failed";
         core.setFailed(title);
     }
     finally {
+        const octokit = github.getOctokit(githubToken);
         octokit.rest.checks.create({
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            name: "Snowmate Tests",
+            name: "Snowmate Regression Tests",
             head_sha: github.context.sha,
             status: "completed",
             conclusion: conclusion,
@@ -9681,13 +9690,6 @@ const runRunner = () => {
         });
     }
 };
-// get token for octokit
-const token = core.getInput("github-token");
-const projectPath = core.getInput("project-path");
-const projectID = core.getInput("project-id");
-const clientID = core.getInput("client-id");
-const secretKey = core.getInput("secret-key");
-const octokit = github.getOctokit(token);
 let beforeBranch;
 let beforeCommit;
 switch (github.context.eventName) {
@@ -9703,12 +9705,11 @@ switch (github.context.eventName) {
         break;
     }
     default: {
-        // Todo: add message to user that explain the runner is not supported in this case.
+        core.setFailed("Stopping Snowmate, currently our tests only run on a push/pull request.");
         break;
     }
 }
-console.log(beforeBranch, beforeCommit, github.context.runId);
-runRunner();
+runRunner(beforeBranch, beforeCommit);
 
 
 /***/ }),
