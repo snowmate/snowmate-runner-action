@@ -1,0 +1,25 @@
+name: "Snowmate Runner"
+author: "Snowmate"
+description: "Snowmate Runner"
+inputs:
+  github-token:
+    description: "GitHub Token"
+    required: true
+  project-path:
+    description: "Project Path"
+    required: true
+  project-id:
+    description: "Project ID"
+    required: true
+  client-id:
+    description: "Client ID"
+    required: true
+  secret-key:
+    description: "Secret Key"
+    required: true
+runs:
+  using: "node16"
+  main: "dist/index.js"
+branding:
+  icon: "target"
+  color: "blue"
