@@ -1,7 +1,7 @@
 {
-  "name": "actions-name",
+  "name": "snowamte-runner",
   "version": "1.0.0",
-  "description": "actions-description",
+  "description": "snowamte-runner",
   "main": "main.ts",
   "scripts": {
     "build": "tsc && ncc build ./src/main.ts -o dist",
@@ -9,9 +9,7 @@
     "prettier:check": "prettier --check '**/*.ts'",
     "lint:check": "eslint . --ext .ts",
     "lint:write": "eslint --fix . --ext .ts",
-    "test": "jest --coverage",
-    "start": "yarn run build && node ./dist/index.js",
-    "local": "yarn run build && act --job regression --container-architecture linux/amd64"
+    "start": "yarn run build && node ./dist/index.js"
   },
   "keywords": [],
   "author": "",

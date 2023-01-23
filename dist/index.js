@@ -9655,13 +9655,12 @@ const runRunner = (baseBranch, baseCommit) => {
     let conclusion;
     let title;
     const githubToken = core.getInput("github-token");
-    // const projectPath = core.getInput("project-path")
-    // const projectID = core.getInput("project-id")
-    // const clientID = core.getInput("client-id")
-    // const secretKey = core.getInput("secret-key")
+    const projectPath = core.getInput("project-path");
+    const projectID = core.getInput("project-id");
+    const clientID = core.getInput("client-id");
+    const secretKey = core.getInput("secret-key");
     try {
-        // const runnerCommand = `cd ${projectPath} && snowmate run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --base-branch ${baseBranch} --base-commit ${baseCommit} --workflow-run-id ${github.context.runId}`
-        const runnerCommand = "pwd";
+        const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --base-branch ${baseBranch} --base-commit ${baseCommit} --workflow-run-id ${github.context.runId} -s`;
         summary = child_process.execSync(runnerCommand).toString();
         conclusion = "success";
         title = "All tests successfully passed";
@@ -9710,7 +9709,6 @@ switch (github.context.eventName) {
         break;
     }
 }
-console.log("test");
 runRunner(beforeBranch, beforeCommit);
 
 
