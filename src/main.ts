@@ -36,7 +36,6 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 	let summary = ""
 	let conclusion = " "
 	let title = ""
-	let isSucceed = false
 
 	const projectPath = core.getInput("project-path")
 	const projectID = core.getInput("project-id")
@@ -50,18 +49,11 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 		summary = child_process.execSync(runnerCommand).toString()
 		conclusion = "success"
 		title = "All tests successfully passed"
-		isSucceed = true
 	} catch (error: unknown) {
-		if (error instanceof Error) {
-			summary = error.message
-		}
 		conclusion = "failure"
 		title = "One or more tests had failed"
 	} finally {
 		createCheck(githubToken, conclusion, title, summary)
-		if (!isSucceed) {
-			core.setFailed(title || "")
-		}
 	}
 }
 
