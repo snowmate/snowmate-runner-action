@@ -9,7 +9,8 @@
     "prettier:check": "prettier --check '**/*.ts'",
     "lint:check": "eslint . --ext .ts",
     "lint:write": "eslint --fix . --ext .ts",
-    "start": "yarn run build && node ./dist/index.js"
+    "start": "yarn run build && node ./dist/index.js",
+    "local": "yarn run build && act --eventpath .github/workflows/run-tests/payload.json -W .github/workflows/snowmate-tests-example.yaml --secret-file my.secrets --container-architecture linux/amd64"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,8 @@
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
     "@octokit/action": "^4.0.10",
-    "@vercel/ncc": "^0.34.0"
+    "@vercel/ncc": "^0.34.0",
+    "isomorphic-git": "^1.21.0"
   },
   "devDependencies": {
     "@eslint/create-config": "^0.4.2",
