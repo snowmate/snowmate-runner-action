@@ -22605,8 +22605,7 @@ const createCheck = async (githubToken, conclusion, title, summary) => {
     await octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
-        name: "Snowmate Regression Tests" + Math.random(),
-        head_sha: github.context.sha,
+        name: "Snowmate Regression Tests",
         status: "completed",
         conclusion: conclusion,
         output: {
