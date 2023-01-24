@@ -33,7 +33,6 @@ const calculateGitData = () => {
 }
 
 const runRunner = async (githubToken: string, cloneTempDir: string) => {
-	let summary = ""
 	let conclusion = ""
 	let title = ""
 
@@ -49,13 +48,16 @@ const runRunner = async (githubToken: string, cloneTempDir: string) => {
 		const result = child_process.execSync(runnerCommand, { encoding: "utf-8" })
 		conclusion = "success"
 		title = "All tests successfully passed"
-		summary = result.toString()
+		console.log(result)
 	} catch (e) {
 		const err = e as Error & { stdout: string }
 		conclusion = "failure"
 		title = "One or more tests had failed"
-		summary = err.stdout
+		console.log(err.stdout)
 	} finally {
+		const summary = fs.readFileSync("/tmp/snowmate_result.md", {
+			encoding: "utf-8",
+		})
 		await createCheck(githubToken, conclusion, title, summary)
 	}
 }

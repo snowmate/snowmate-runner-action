@@ -22574,7 +22574,6 @@ const calculateGitData = () => {
     return { beforeBranch, beforeCommit };
 };
 const runRunner = async (githubToken, cloneTempDir) => {
-    let summary = "";
     let conclusion = "";
     let title = "";
     const projectPath = core.getInput("project-path");
@@ -22588,15 +22587,18 @@ const runRunner = async (githubToken, cloneTempDir) => {
         const result = child_process.execSync(runnerCommand, { encoding: "utf-8" });
         conclusion = "success";
         title = "All tests successfully passed";
-        summary = result.toString();
+        console.log(result);
     }
     catch (e) {
         const err = e;
         conclusion = "failure";
         title = "One or more tests had failed";
-        summary = err.stdout;
+        console.log(err.stdout);
     }
     finally {
+        const summary = fs.readFileSync("/tmp/snowmate_result.md", {
+            encoding: "utf-8",
+        });
         await createCheck(githubToken, conclusion, title, summary);
     }
 };
