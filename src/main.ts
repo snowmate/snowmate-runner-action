@@ -51,9 +51,10 @@ const runRunner = async (githubToken: string, cloneTempDir: string) => {
 		title = "All tests successfully passed"
 		summary = result.toString()
 	} catch (e) {
+		const err = e as Error & { stdout: string }
 		conclusion = "failure"
 		title = "One or more tests had failed"
-		console.log(e)
+		summary = err.stdout
 	} finally {
 		await createCheck(githubToken, conclusion, title, summary)
 	}

@@ -22591,9 +22591,10 @@ const runRunner = async (githubToken, cloneTempDir) => {
         summary = result.toString();
     }
     catch (e) {
+        const err = e;
         conclusion = "failure";
         title = "One or more tests had failed";
-        console.log(e);
+        summary = err.stdout;
     }
     finally {
         await createCheck(githubToken, conclusion, title, summary);
