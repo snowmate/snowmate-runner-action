@@ -22577,17 +22577,34 @@ const runRunner = async (githubToken, cloneTempDir) => {
     const summary = "";
     let conclusion = "";
     let title = "";
-    const projectPath = core.getInput("project-path");
-    const projectID = core.getInput("project-id");
-    const clientID = core.getInput("client-id");
-    const secretKey = core.getInput("secret-key");
+    const projectPath = core.getInput("project-path") || "";
+    const projectID = core.getInput("project-id") || "";
+    const clientID = core.getInput("client-id") || "";
+    const secretKey = core.getInput("secret-key") || "";
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
-    const rootDir = process.env.GITHUB_WORKSPACE;
+    const rootDir = process.env.GITHUB_WORKSPACE || "";
     const pythonCommand = "python3";
-    const runnerOptions = `-m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
-    const result = child_process.spawnSync(pythonCommand, [runnerOptions], {
+    const runID = github.context.runId.toString();
+    const result = child_process.spawnSync(pythonCommand, [
+        "-m",
+        "pytest",
+        "--snowmate",
+        "--project-id",
+        projectID,
+        "--client-id",
+        clientID,
+        "--secret-key",
+        secretKey,
+        "--workflow-run-id",
+        runID,
+        "--cloned-repo-dir",
+        tempProjectDir,
+        "--project-root-path",
+        rootDir,
+        "-s",
+    ], {
         encoding: "utf-8",
-        cwd: projectPath,
+        cwd: path.join(rootDir || "", projectPath),
     });
     console.log(result.error);
     console.log(result.stdout);
