@@ -45,6 +45,7 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
+	console.log(rootDir)
 	try {
 		const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-temp-dir ${tempProjectDir} --root-path ${rootDir} -s`
 		summary = child_process.execSync(runnerCommand).toString()
