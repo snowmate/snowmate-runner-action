@@ -22584,19 +22584,18 @@ const runRunner = (githubToken, cloneTempDir) => {
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
     const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
+    let result;
     try {
-        const result = child_process.execSync(runnerCommand);
+        result = child_process.execSync(runnerCommand);
         conclusion = "success";
         title = "All tests successfully passed";
-        summary = result.toString();
     }
     catch (e) {
-        const err = e;
         conclusion = "failure";
         title = "One or more tests had failed";
-        summary = err.stderr.toString();
     }
     finally {
+        summary = result?.toString() || "";
         createCheck(githubToken, conclusion, title, summary);
     }
 };
@@ -22637,6 +22636,7 @@ const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
 };
 const startRun = async () => {
     const gitData = calculateGitData();
+    console.log(gitData);
     const githubToken = core.getInput("github-token");
     let tempDir;
     try {
