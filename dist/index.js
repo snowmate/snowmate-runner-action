@@ -22408,7 +22408,7 @@ const runRunner = (githubToken, cloneTempDir) => {
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
     try {
-        const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-temp-dir ${tempProjectDir} --root-path ${rootDir} -s`;
+        const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
         summary = child_process.execSync(runnerCommand).toString();
         conclusion = "success";
         title = "All tests successfully passed";
