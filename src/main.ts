@@ -45,20 +45,16 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
 	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`
-	const childRun = child_process.spawn(runnerCommand, { shell: true })
-	childRun.stdout.on("data", (data) => {
+	const result = child_process.spawnSync(runnerCommand, { shell: true })
+	if (result.status === 0) {
 		conclusion = "success"
 		title = "All tests successfully passed"
-		summary = data
-		createCheck(githubToken, conclusion, title, summary)
-	})
-
-	childRun.stderr.on("data", (data) => {
-		conclusion = "failure"
+		summary = result.stdout.toString()
+	} else {
 		title = "One or more tests had failed"
-		summary = data
-		createCheck(githubToken, conclusion, title, summary)
-	})
+		summary = result.stderr.toString()
+	}
+	createCheck(githubToken, conclusion, title, summary)
 }
 
 const createCheck = (
