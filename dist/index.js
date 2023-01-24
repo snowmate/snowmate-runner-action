@@ -22601,12 +22601,11 @@ const runRunner = async (githubToken, cloneTempDir) => {
     }
 };
 const createCheck = async (githubToken, conclusion, title, summary) => {
-    console.log(conclusion, title, summary);
     const octokit = await github.getOctokit(githubToken);
-    const check = await octokit.rest.checks.create({
+    await octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
-        name: "Snowmate Regression Tests",
+        name: "Snowmate Regression Tests" + Math.random(),
         head_sha: github.context.sha,
         status: "completed",
         conclusion: conclusion,
@@ -22615,7 +22614,6 @@ const createCheck = async (githubToken, conclusion, title, summary) => {
             summary,
         },
     });
-    console.log(check);
 };
 const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
     const githubRepo = github.context.repo;
