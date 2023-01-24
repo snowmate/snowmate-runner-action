@@ -22465,7 +22465,6 @@ const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
 };
 const startRun = async () => {
     const gitData = calculateGitData();
-    console.log(gitData);
     const githubToken = core.getInput("github-token");
     let tempDir;
     try {
