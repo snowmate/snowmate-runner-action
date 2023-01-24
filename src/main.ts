@@ -32,8 +32,8 @@ const calculateGitData = () => {
 	return { beforeBranch, beforeCommit }
 }
 
-const runRunner = (githubToken: string, cloneTempDir: string) => {
-	let summary = ""
+const runRunner = async (githubToken: string, cloneTempDir: string) => {
+	const summary = ""
 	let conclusion = ""
 	let title = ""
 
@@ -53,11 +53,12 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 		conclusion = "failure"
 		title = "One or more tests had failed"
 	}
-	summary = result.stdout.toString()
-	createCheck(githubToken, conclusion, title, summary)
+	console.log("out", result.stdout ? result.stdout.toString() : "")
+	console.log("error", result.stderr ? result.stderr.toString() : "")
+	await createCheck(githubToken, conclusion, title, summary)
 }
 
-const createCheck = (
+const createCheck = async (
 	githubToken: string,
 	conclusion: string,
 	title: string,
@@ -65,7 +66,7 @@ const createCheck = (
 ) => {
 	console.log(conclusion, title, summary)
 	const octokit = github.getOctokit(githubToken)
-	octokit.rest.checks.create({
+	await octokit.rest.checks.create({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
 		name: "Snowmate Regression Tests",
@@ -107,7 +108,6 @@ const cloneRepo = async (
 
 const startRun = async () => {
 	const gitData = calculateGitData()
-	console.log(gitData)
 	const githubToken = core.getInput("github-token")
 	let tempDir
 	try {
