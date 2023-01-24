@@ -16,8 +16,8 @@ jobs:
           python-version: '3.10'
       - name: Install Pytest
         run: pip install pytest
-      - name: Install Snowmate Runner
-        run: pip install -i "https://${{ secrets.SNOWMATE_CLIENT_ID }}:${{ secrets.SNOWMATE_SECRET_KEY }}@pypi.dev.snowmate.io/simple" -U snowmate_runner
+      # - name: Install Snowmate Runner
+      #   run: pip install -i "https://${{ secrets.SNOWMATE_CLIENT_ID }}:${{ secrets.SNOWMATE_SECRET_KEY }}@pypi.dev.snowmate.io/simple" -U snowmate_runner
       - name: 'Run Snowmate Tests'
         uses: ./
         with:
