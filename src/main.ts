@@ -45,16 +45,16 @@ const runRunner = async (githubToken: string, cloneTempDir: string) => {
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
 	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`
-	const result = child_process.spawnSync(runnerCommand)
-	if (result.status === 0) {
-		conclusion = "success"
-		title = "All tests successfully passed"
-	} else {
+	const result = child_process.spawnSync(runnerCommand, { encoding: "utf-8" })
+	if (result.error) {
 		conclusion = "failure"
 		title = "One or more tests had failed"
+		console.log(result.error)
+	} else {
+		conclusion = "success"
+		title = "All tests successfully passed"
 	}
-	console.log("out", result.stdout ? result.stdout.toString() : "")
-	console.log("error", result.stderr ? result.stderr.toString() : "")
+
 	await createCheck(githubToken, conclusion, title, summary)
 }
 
@@ -65,7 +65,7 @@ const createCheck = async (
 	summary: string
 ) => {
 	console.log(conclusion, title, summary)
-	const octokit = github.getOctokit(githubToken)
+	const octokit = await github.getOctokit(githubToken)
 	await octokit.rest.checks.create({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
