@@ -50,11 +50,11 @@ const runRunner = async (githubToken: string, cloneTempDir: string) => {
 		encoding: "utf-8",
 		cwd: projectPath,
 	})
+	console.log(result.error)
+	console.log(result.stdout)
 	if (result.error) {
 		conclusion = "failure"
 		title = "One or more tests had failed"
-		console.log(result.error)
-		console.log(result.stdout)
 	} else {
 		conclusion = "success"
 		title = "All tests successfully passed"
