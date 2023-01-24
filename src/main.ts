@@ -49,13 +49,11 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 	if (result.status === 0) {
 		conclusion = "success"
 		title = "All tests successfully passed"
-		summary = result.stdout.toString()
 	} else {
 		conclusion = "failure"
 		title = "One or more tests had failed"
-		summary = result.stderr.toString()
 	}
-
+	summary = result.stdout.toString()
 	createCheck(githubToken, conclusion, title, summary)
 }
 
