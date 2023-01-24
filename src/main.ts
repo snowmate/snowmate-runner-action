@@ -33,55 +33,30 @@ const calculateGitData = () => {
 }
 
 const runRunner = async (githubToken: string, cloneTempDir: string) => {
-	const summary = ""
+	let summary = ""
 	let conclusion = ""
 	let title = ""
 
-	const projectPath = core.getInput("project-path") || ""
-	const projectID = core.getInput("project-id") || ""
-	const clientID = core.getInput("client-id") || ""
-	const secretKey = core.getInput("secret-key") || ""
+	const projectPath = core.getInput("project-path")
+	const projectID = core.getInput("project-id")
+	const clientID = core.getInput("client-id")
+	const secretKey = core.getInput("secret-key")
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
-	const rootDir = process.env.GITHUB_WORKSPACE || ""
-	const pythonCommand = "python3"
-	const runID = github.context.runId.toString()
-	const result = child_process.spawnSync(
-		pythonCommand,
-		[
-			"-m",
-			"pytest",
-			"--snowmate",
-			"--project-id",
-			projectID,
-			"--client-id",
-			clientID,
-			"--secret-key",
-			secretKey,
-			"--workflow-run-id",
-			runID,
-			"--cloned-repo-dir",
-			tempProjectDir,
-			"--project-root-path",
-			rootDir,
-			"-s",
-		],
-		{
-			encoding: "utf-8",
-			cwd: path.join(rootDir || "", projectPath),
-		}
-	)
-	console.log(result.error)
-	console.log(result.stdout)
-	if (result.error) {
-		conclusion = "failure"
-		title = "One or more tests had failed"
-	} else {
+	const rootDir = process.env.GITHUB_WORKSPACE
+	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`
+	try {
+		const result = child_process.execSync(runnerCommand, { encoding: "utf-8" })
 		conclusion = "success"
 		title = "All tests successfully passed"
+		summary = result.toString()
+	} catch (e) {
+		conclusion = "failure"
+		title = "One or more tests had failed"
+		console.log(e)
+	} finally {
+		await createCheck(githubToken, conclusion, title, summary)
 	}
-
-	await createCheck(githubToken, conclusion, title, summary)
 }
 
 const createCheck = async (
@@ -92,7 +67,7 @@ const createCheck = async (
 ) => {
 	console.log(conclusion, title, summary)
 	const octokit = await github.getOctokit(githubToken)
-	await octokit.rest.checks.create({
+	const check = await octokit.rest.checks.create({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
 		name: "Snowmate Regression Tests",
@@ -104,6 +79,7 @@ const createCheck = async (
 			summary,
 		},
 	})
+	console.log(check)
 }
 
 const cloneRepo = async (
