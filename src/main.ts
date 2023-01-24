@@ -34,7 +34,7 @@ const calculateGitData = () => {
 
 const runRunner = (githubToken: string, cloneTempDir: string) => {
 	let summary = ""
-	let conclusion = " "
+	let conclusion = ""
 	let title = ""
 
 	const projectPath = core.getInput("project-path")
@@ -45,16 +45,20 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
 	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`
-	const result = child_process.spawnSync(runnerCommand, { shell: true })
-	if (result.status === 0) {
+
+	try {
+		const result = child_process.execSync(runnerCommand)
 		conclusion = "success"
 		title = "All tests successfully passed"
-		summary = result.stdout.toString()
-	} else {
+		summary = result.toString()
+	} catch (e: unknown) {
+		const err = e as Error & { stderr: Buffer }
+		conclusion = "failure"
 		title = "One or more tests had failed"
-		summary = result.stderr.toString()
+		summary = err.stderr.toString()
+	} finally {
+		createCheck(githubToken, conclusion, title, summary)
 	}
-	createCheck(githubToken, conclusion, title, summary)
 }
 
 const createCheck = (
