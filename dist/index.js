@@ -22583,12 +22583,17 @@ const runRunner = async (githubToken, cloneTempDir) => {
     const secretKey = core.getInput("secret-key");
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
-    const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
-    const result = child_process.spawnSync(runnerCommand, { encoding: "utf-8" });
+    const pythonCommand = "python3";
+    const runnerOptions = `-m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
+    const result = child_process.spawnSync(pythonCommand, [runnerOptions], {
+        encoding: "utf-8",
+        cwd: projectPath,
+    });
     if (result.error) {
         conclusion = "failure";
         title = "One or more tests had failed";
         console.log(result.error);
+        console.log(result.stdout);
     }
     else {
         conclusion = "success";
