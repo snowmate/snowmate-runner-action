@@ -114,7 +114,6 @@ const cloneRepo = async (
 
 const startRun = async () => {
 	const gitData = calculateGitData()
-	console.log(gitData)
 	const githubToken = core.getInput("github-token")
 	let tempDir
 	try {
