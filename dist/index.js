@@ -22584,22 +22584,21 @@ const runRunner = (githubToken, cloneTempDir) => {
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
     const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
-    let result;
-    try {
-        result = child_process.execSync(runnerCommand);
+    const result = child_process.spawnSync(runnerCommand);
+    if (result.status === 0) {
         conclusion = "success";
         title = "All tests successfully passed";
+        summary = result.stdout.toString();
     }
-    catch (e) {
+    else {
         conclusion = "failure";
         title = "One or more tests had failed";
+        summary = result.stderr.toString();
     }
-    finally {
-        summary = result?.toString() || "";
-        createCheck(githubToken, conclusion, title, summary);
-    }
+    createCheck(githubToken, conclusion, title, summary);
 };
 const createCheck = (githubToken, conclusion, title, summary) => {
+    console.log(conclusion, title, summary);
     const octokit = github.getOctokit(githubToken);
     octokit.rest.checks.create({
         owner: github.context.repo.owner,
