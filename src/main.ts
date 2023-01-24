@@ -71,6 +71,7 @@ const createCheck = async (
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
 		name: "Snowmate Regression Tests",
+		head_sha: github.context.sha,
 		status: "completed",
 		conclusion: conclusion,
 		output: {
