@@ -50,15 +50,13 @@ const runRunner = (githubToken: string, cloneTempDir: string) => {
 		conclusion = "success"
 		title = "All tests successfully passed"
 		summary = data
+		createCheck(githubToken, conclusion, title, summary)
 	})
 
 	childRun.stderr.on("data", (data) => {
 		conclusion = "failure"
 		title = "One or more tests had failed"
 		summary = data
-	})
-
-	childRun.on("close", () => {
 		createCheck(githubToken, conclusion, title, summary)
 	})
 }
