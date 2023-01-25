@@ -8,9 +8,10 @@ import * as fs from "fs"
 import http from "isomorphic-git/http/node"
 
 const calculateGitData = () => {
+	console.log(github.context.sha)
+
 	let beforeBranch
 	let beforeCommit
-	let pullRequestNumber
 	switch (github.context.eventName) {
 	case "push": {
 		beforeBranch = github.context.payload.ref
@@ -21,8 +22,6 @@ const calculateGitData = () => {
 		const pullRequest = github.context.payload.pull_request
 		beforeBranch = pullRequest?.base.ref
 		beforeCommit = pullRequest?.base.sha
-		pullRequestNumber = pullRequest?.number
-		console.log(pullRequest?.number)
 		break
 	}
 	default: {
@@ -32,14 +31,10 @@ const calculateGitData = () => {
 		break
 	}
 	}
-	return { beforeBranch, beforeCommit, pullRequestNumber }
+	return { beforeBranch, beforeCommit }
 }
 
-const runRunner = async (
-	githubToken: string,
-	cloneTempDir: string,
-	pullRequestNumber?: number
-) => {
+const runRunner = async (githubToken: string, cloneTempDir: string) => {
 	let conclusion = ""
 	let title = ""
 
@@ -70,13 +65,7 @@ const runRunner = async (
 		} catch {
 			summary = ""
 		}
-		await createCheck(
-			githubToken,
-			conclusion,
-			title,
-			summary,
-			pullRequestNumber
-		)
+		await createCheck(githubToken, conclusion, title, summary)
 	}
 }
 
@@ -84,13 +73,10 @@ const createCheck = async (
 	githubToken: string,
 	conclusion: string,
 	title: string,
-	summary: string,
-	pullRequestNumber?: number
+	summary: string
 ) => {
 	const octokit = await github.getOctokit(githubToken)
-	const pullRequests = pullRequestNumber ? [pullRequestNumber] : undefined
-	console.log(pullRequests)
-	const check = await octokit.rest.checks.create({
+	octokit.rest.checks.create({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
 		name: "Snowmate Regression Tests",
@@ -102,9 +88,7 @@ const createCheck = async (
 			title,
 			summary,
 		},
-		pull_requests: pullRequests,
 	})
-	console.log(check)
 }
 
 const cloneRepo = async (
@@ -145,7 +129,7 @@ const startRun = async () => {
 			gitData.beforeCommit,
 			githubToken
 		)
-		await runRunner(githubToken, tempDir, gitData.pullRequestNumber)
+		await runRunner(githubToken, tempDir)
 	} catch (e) {
 		console.error(e)
 	} finally {

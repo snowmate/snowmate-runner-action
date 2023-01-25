@@ -22552,9 +22552,9 @@ const os = __importStar(__nccwpck_require__(2037));
 const fs = __importStar(__nccwpck_require__(7147));
 const node_1 = __importDefault(__nccwpck_require__(5106));
 const calculateGitData = () => {
+    console.log(github.context.sha);
     let beforeBranch;
     let beforeCommit;
-    let pullRequestNumber;
     switch (github.context.eventName) {
         case "push": {
             beforeBranch = github.context.payload.ref;
@@ -22565,8 +22565,6 @@ const calculateGitData = () => {
             const pullRequest = github.context.payload.pull_request;
             beforeBranch = pullRequest?.base.ref;
             beforeCommit = pullRequest?.base.sha;
-            pullRequestNumber = pullRequest?.number;
-            console.log(pullRequest?.number);
             break;
         }
         default: {
@@ -22574,9 +22572,9 @@ const calculateGitData = () => {
             break;
         }
     }
-    return { beforeBranch, beforeCommit, pullRequestNumber };
+    return { beforeBranch, beforeCommit };
 };
-const runRunner = async (githubToken, cloneTempDir, pullRequestNumber) => {
+const runRunner = async (githubToken, cloneTempDir) => {
     let conclusion = "";
     let title = "";
     const projectPath = core.getInput("project-path");
@@ -22608,14 +22606,12 @@ const runRunner = async (githubToken, cloneTempDir, pullRequestNumber) => {
         catch {
             summary = "";
         }
-        await createCheck(githubToken, conclusion, title, summary, pullRequestNumber);
+        await createCheck(githubToken, conclusion, title, summary);
     }
 };
-const createCheck = async (githubToken, conclusion, title, summary, pullRequestNumber) => {
+const createCheck = async (githubToken, conclusion, title, summary) => {
     const octokit = await github.getOctokit(githubToken);
-    const pullRequests = pullRequestNumber ? [pullRequestNumber] : undefined;
-    console.log(pullRequests);
-    const check = await octokit.rest.checks.create({
+    octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         name: "Snowmate Regression Tests",
@@ -22627,9 +22623,7 @@ const createCheck = async (githubToken, conclusion, title, summary, pullRequestN
             title,
             summary,
         },
-        pull_requests: pullRequests,
     });
-    console.log(check);
 };
 const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
     const githubRepo = github.context.repo;
@@ -22658,7 +22652,7 @@ const startRun = async () => {
     try {
         tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "snow-"));
         await cloneRepo(tempDir, gitData.beforeBranch, gitData.beforeCommit, githubToken);
-        await runRunner(githubToken, tempDir, gitData.pullRequestNumber);
+        await runRunner(githubToken, tempDir);
     }
     catch (e) {
         console.error(e);
