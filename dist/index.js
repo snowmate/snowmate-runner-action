@@ -22582,7 +22582,7 @@ const runRunner = async (githubToken, cloneTempDir, currentSha) => {
     const rootDir = process.env.GITHUB_WORKSPACE;
     const workflowRunID = github.context.runId;
     const detailsURL = `${SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`;
-    const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`;
+    const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir}`; //--details-url ${detailsURL}
     try {
         const result = child_process.execSync(runnerCommand, { encoding: "utf-8" });
         conclusion = "success";
