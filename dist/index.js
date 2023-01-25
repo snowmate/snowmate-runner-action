@@ -22612,7 +22612,9 @@ const runRunner = async (githubToken, cloneTempDir, pullRequestNumber) => {
 };
 const createCheck = async (githubToken, conclusion, title, summary, pullRequestNumber) => {
     const octokit = await github.getOctokit(githubToken);
-    await octokit.rest.checks.create({
+    const pullRequests = pullRequestNumber ? [pullRequestNumber] : undefined;
+    console.log(pullRequests);
+    const check = await octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         name: "Snowmate Regression Tests",
@@ -22624,8 +22626,9 @@ const createCheck = async (githubToken, conclusion, title, summary, pullRequestN
             title,
             summary,
         },
-        pull_requests: pullRequestNumber ? [pullRequestNumber] : undefined,
+        pull_requests: pullRequests,
     });
+    console.log(check);
 };
 const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
     const githubRepo = github.context.repo;
