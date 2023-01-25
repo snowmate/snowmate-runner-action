@@ -22554,6 +22554,7 @@ const node_1 = __importDefault(__nccwpck_require__(5106));
 const calculateGitData = () => {
     let beforeBranch;
     let beforeCommit;
+    let pullRequestNumber;
     switch (github.context.eventName) {
         case "push": {
             beforeBranch = github.context.payload.ref;
@@ -22564,6 +22565,7 @@ const calculateGitData = () => {
             const pull_request = github.context.payload.pull_request;
             beforeBranch = pull_request?.base.ref;
             beforeCommit = pull_request?.base.sha;
+            pullRequestNumber = pull_request?.number;
             break;
         }
         default: {
@@ -22571,9 +22573,9 @@ const calculateGitData = () => {
             break;
         }
     }
-    return { beforeBranch, beforeCommit };
+    return { beforeBranch, beforeCommit, pullRequestNumber };
 };
-const runRunner = async (githubToken, cloneTempDir) => {
+const runRunner = async (githubToken, cloneTempDir, pullRequestNumber) => {
     let conclusion = "";
     let title = "";
     const projectPath = core.getInput("project-path");
@@ -22599,10 +22601,10 @@ const runRunner = async (githubToken, cloneTempDir) => {
         const summary = fs.readFileSync("/tmp/snowmate_result.md", {
             encoding: "utf-8",
         });
-        await createCheck(githubToken, conclusion, title, summary);
+        await createCheck(githubToken, conclusion, title, summary, pullRequestNumber);
     }
 };
-const createCheck = async (githubToken, conclusion, title, summary) => {
+const createCheck = async (githubToken, conclusion, title, summary, pullRequestNumber) => {
     const octokit = await github.getOctokit(githubToken);
     await octokit.rest.checks.create({
         owner: github.context.repo.owner,
@@ -22610,11 +22612,13 @@ const createCheck = async (githubToken, conclusion, title, summary) => {
         name: "Snowmate Regression Tests",
         head_sha: github.context.sha,
         status: "completed",
+        external_id: "snowmate-tests",
         conclusion: conclusion,
         output: {
             title,
             summary,
         },
+        pull_requests: pullRequestNumber ? [pullRequestNumber] : undefined,
     });
 };
 const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
