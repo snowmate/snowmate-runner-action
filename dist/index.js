@@ -22564,8 +22564,7 @@ const calculateGitData = () => {
             break;
         }
         default: {
-            core.setFailed("Stopping Snowmate, currently our tests only run on a pull request.");
-            break;
+            return undefined;
         }
     }
     return { beforeBranch, beforeCommit, currentSha };
@@ -22643,6 +22642,10 @@ const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
 };
 const startRun = async () => {
     const gitData = calculateGitData();
+    if (!gitData) {
+        core.setFailed("Stopping Snowmate, currently our tests only run on a pull request.");
+        return;
+    }
     const githubToken = core.getInput("github-token");
     let tempDir;
     try {
