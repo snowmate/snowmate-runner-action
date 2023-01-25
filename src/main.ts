@@ -18,10 +18,11 @@ const calculateGitData = () => {
 		break
 	}
 	case "pull_request": {
-		const pull_request = github.context.payload.pull_request
-		beforeBranch = pull_request?.base.ref
-		beforeCommit = pull_request?.base.sha
-		pullRequestNumber = pull_request?.number
+		const pullRequest = github.context.payload.pull_request
+		console.log(pullRequest)
+		beforeBranch = pullRequest?.base.ref
+		beforeCommit = pullRequest?.base.sha
+		pullRequestNumber = pullRequest?.number
 		break
 	}
 	default: {
