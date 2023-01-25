@@ -8,20 +8,21 @@ import * as fs from "fs"
 import http from "isomorphic-git/http/node"
 
 const calculateGitData = () => {
-	console.log(github.context.sha)
-
 	let beforeBranch
 	let beforeCommit
+	let currentSha
 	switch (github.context.eventName) {
 	case "push": {
 		beforeBranch = github.context.payload.ref
 		beforeCommit = github.context.payload.before
+		currentSha = github.context.sha
 		break
 	}
 	case "pull_request": {
 		const pullRequest = github.context.payload.pull_request
 		beforeBranch = pullRequest?.base.ref
 		beforeCommit = pullRequest?.base.sha
+		currentSha = pullRequest?.head.sha
 		break
 	}
 	default: {
@@ -31,10 +32,14 @@ const calculateGitData = () => {
 		break
 	}
 	}
-	return { beforeBranch, beforeCommit }
+	return { beforeBranch, beforeCommit, currentSha }
 }
 
-const runRunner = async (githubToken: string, cloneTempDir: string) => {
+const runRunner = async (
+	githubToken: string,
+	cloneTempDir: string,
+	currentSha: string
+) => {
 	let conclusion = ""
 	let title = ""
 
@@ -65,7 +70,7 @@ const runRunner = async (githubToken: string, cloneTempDir: string) => {
 		} catch {
 			summary = ""
 		}
-		await createCheck(githubToken, conclusion, title, summary)
+		await createCheck(githubToken, conclusion, title, summary, currentSha)
 	}
 }
 
@@ -73,14 +78,15 @@ const createCheck = async (
 	githubToken: string,
 	conclusion: string,
 	title: string,
-	summary: string
+	summary: string,
+	currentSha: string
 ) => {
 	const octokit = await github.getOctokit(githubToken)
 	octokit.rest.checks.create({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
 		name: "Snowmate Regression Tests",
-		head_sha: github.context.sha,
+		head_sha: currentSha,
 		status: "completed",
 		external_id: "snowmate-tests",
 		conclusion: conclusion,
@@ -129,7 +135,7 @@ const startRun = async () => {
 			gitData.beforeCommit,
 			githubToken
 		)
-		await runRunner(githubToken, tempDir)
+		await runRunner(githubToken, tempDir, gitData.currentSha)
 	} catch (e) {
 		console.error(e)
 	} finally {

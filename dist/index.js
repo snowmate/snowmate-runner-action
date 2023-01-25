@@ -22552,19 +22552,21 @@ const os = __importStar(__nccwpck_require__(2037));
 const fs = __importStar(__nccwpck_require__(7147));
 const node_1 = __importDefault(__nccwpck_require__(5106));
 const calculateGitData = () => {
-    console.log(github.context.sha);
     let beforeBranch;
     let beforeCommit;
+    let currentSha;
     switch (github.context.eventName) {
         case "push": {
             beforeBranch = github.context.payload.ref;
             beforeCommit = github.context.payload.before;
+            currentSha = github.context.sha;
             break;
         }
         case "pull_request": {
             const pullRequest = github.context.payload.pull_request;
             beforeBranch = pullRequest?.base.ref;
             beforeCommit = pullRequest?.base.sha;
+            currentSha = pullRequest?.head.sha;
             break;
         }
         default: {
@@ -22572,9 +22574,9 @@ const calculateGitData = () => {
             break;
         }
     }
-    return { beforeBranch, beforeCommit };
+    return { beforeBranch, beforeCommit, currentSha };
 };
-const runRunner = async (githubToken, cloneTempDir) => {
+const runRunner = async (githubToken, cloneTempDir, currentSha) => {
     let conclusion = "";
     let title = "";
     const projectPath = core.getInput("project-path");
@@ -22606,16 +22608,16 @@ const runRunner = async (githubToken, cloneTempDir) => {
         catch {
             summary = "";
         }
-        await createCheck(githubToken, conclusion, title, summary);
+        await createCheck(githubToken, conclusion, title, summary, currentSha);
     }
 };
-const createCheck = async (githubToken, conclusion, title, summary) => {
+const createCheck = async (githubToken, conclusion, title, summary, currentSha) => {
     const octokit = await github.getOctokit(githubToken);
     octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         name: "Snowmate Regression Tests",
-        head_sha: github.context.sha,
+        head_sha: currentSha,
         status: "completed",
         external_id: "snowmate-tests",
         conclusion: conclusion,
@@ -22652,7 +22654,7 @@ const startRun = async () => {
     try {
         tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "snow-"));
         await cloneRepo(tempDir, gitData.beforeBranch, gitData.beforeCommit, githubToken);
-        await runRunner(githubToken, tempDir);
+        await runRunner(githubToken, tempDir, gitData.currentSha);
     }
     catch (e) {
         console.error(e);
