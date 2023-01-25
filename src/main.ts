@@ -84,6 +84,7 @@ const createCheck = async (
 	currentSha: string,
 	detailsURL: string
 ) => {
+	console.log(detailsURL)
 	const octokit = await github.getOctokit(githubToken)
 	await octokit.rest.checks.create({
 		owner: github.context.repo.owner,

@@ -22609,6 +22609,7 @@ const runRunner = async (githubToken, cloneTempDir, currentSha) => {
     }
 };
 const createCheck = async (githubToken, conclusion, title, summary, currentSha, detailsURL) => {
+    console.log(detailsURL);
     const octokit = await github.getOctokit(githubToken);
     await octokit.rest.checks.create({
         owner: github.context.repo.owner,
