@@ -22598,9 +22598,15 @@ const runRunner = async (githubToken, cloneTempDir, pullRequestNumber) => {
         console.log(err.stdout);
     }
     finally {
-        const summary = fs.readFileSync("/tmp/snowmate_result.md", {
-            encoding: "utf-8",
-        });
+        let summary;
+        try {
+            summary = fs.readFileSync("/tmp/snowmate_result.md", {
+                encoding: "utf-8",
+            });
+        }
+        catch {
+            summary = "";
+        }
         await createCheck(githubToken, conclusion, title, summary, pullRequestNumber);
     }
 };
