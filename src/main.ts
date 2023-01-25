@@ -7,6 +7,8 @@ import * as os from "os"
 import * as fs from "fs"
 import http from "isomorphic-git/http/node"
 
+const SNOWMATE_APP_URL = "https://app.dev.snowmate.io"
+const REGRESSIONS_ROUTE = "regressions"
 const calculateGitData = () => {
 	let beforeBranch
 	let beforeCommit
@@ -41,7 +43,9 @@ const runRunner = async (
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
-	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`
+	const workflowRunID = github.context.runId
+	const detailsURL = `${SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
+	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`
 	try {
 		const result = child_process.execSync(runnerCommand, { encoding: "utf-8" })
 		conclusion = "success"
@@ -61,7 +65,14 @@ const runRunner = async (
 		} catch {
 			summary = ""
 		}
-		await createCheck(githubToken, conclusion, title, summary, currentSha)
+		await createCheck(
+			githubToken,
+			conclusion,
+			title,
+			summary,
+			currentSha,
+			detailsURL
+		)
 	}
 }
 
@@ -70,16 +81,18 @@ const createCheck = async (
 	conclusion: string,
 	title: string,
 	summary: string,
-	currentSha: string
+	currentSha: string,
+	detailsURL: string
 ) => {
 	const octokit = await github.getOctokit(githubToken)
 	await octokit.rest.checks.create({
 		owner: github.context.repo.owner,
 		repo: github.context.repo.repo,
-		name: "Snowmate Regression Tests",
+		name: "Snowmate Regressions",
 		head_sha: currentSha,
 		status: "completed",
 		external_id: "snowmate-tests",
+		details_url: detailsURL,
 		conclusion: conclusion,
 		output: {
 			title,

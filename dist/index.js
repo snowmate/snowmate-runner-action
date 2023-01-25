@@ -22551,6 +22551,8 @@ const path = __importStar(__nccwpck_require__(1017));
 const os = __importStar(__nccwpck_require__(2037));
 const fs = __importStar(__nccwpck_require__(7147));
 const node_1 = __importDefault(__nccwpck_require__(5106));
+const SNOWMATE_APP_URL = "https://app.dev.snowmate.io";
+const REGRESSIONS_ROUTE = "regressions";
 const calculateGitData = () => {
     let beforeBranch;
     let beforeCommit;
@@ -22578,7 +22580,9 @@ const runRunner = async (githubToken, cloneTempDir, currentSha) => {
     const secretKey = core.getInput("secret-key");
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
-    const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${github.context.runId} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} -s`;
+    const workflowRunID = github.context.runId;
+    const detailsURL = `${SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`;
+    const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`;
     try {
         const result = child_process.execSync(runnerCommand, { encoding: "utf-8" });
         conclusion = "success";
@@ -22601,18 +22605,19 @@ const runRunner = async (githubToken, cloneTempDir, currentSha) => {
         catch {
             summary = "";
         }
-        await createCheck(githubToken, conclusion, title, summary, currentSha);
+        await createCheck(githubToken, conclusion, title, summary, currentSha, detailsURL);
     }
 };
-const createCheck = async (githubToken, conclusion, title, summary, currentSha) => {
+const createCheck = async (githubToken, conclusion, title, summary, currentSha, detailsURL) => {
     const octokit = await github.getOctokit(githubToken);
     await octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
-        name: "Snowmate Regression Tests",
+        name: "Snowmate Regressions",
         head_sha: currentSha,
         status: "completed",
         external_id: "snowmate-tests",
+        details_url: detailsURL,
         conclusion: conclusion,
         output: {
             title,
