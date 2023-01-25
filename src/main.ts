@@ -19,10 +19,10 @@ const calculateGitData = () => {
 	}
 	case "pull_request": {
 		const pullRequest = github.context.payload.pull_request
-		console.log(pullRequest)
 		beforeBranch = pullRequest?.base.ref
 		beforeCommit = pullRequest?.base.sha
 		pullRequestNumber = pullRequest?.number
+		console.log(pullRequest?.number)
 		break
 	}
 	default: {
@@ -145,7 +145,7 @@ const startRun = async () => {
 			gitData.beforeCommit,
 			githubToken
 		)
-		await runRunner(githubToken, tempDir)
+		await runRunner(githubToken, tempDir, gitData.pullRequestNumber)
 	} catch (e) {
 		console.error(e)
 	} finally {
