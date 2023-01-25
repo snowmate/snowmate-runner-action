@@ -22556,12 +22556,6 @@ const calculateGitData = () => {
     let beforeCommit;
     let currentSha;
     switch (github.context.eventName) {
-        case "push": {
-            beforeBranch = github.context.payload.ref;
-            beforeCommit = github.context.payload.before;
-            currentSha = github.context.sha;
-            break;
-        }
         case "pull_request": {
             const pullRequest = github.context.payload.pull_request;
             beforeBranch = pullRequest?.base.ref;
@@ -22570,7 +22564,7 @@ const calculateGitData = () => {
             break;
         }
         default: {
-            core.setFailed("Stopping Snowmate, currently our tests only run on a push/pull request.");
+            core.setFailed("Stopping Snowmate, currently our tests only run on a pull request.");
             break;
         }
     }
@@ -22613,7 +22607,7 @@ const runRunner = async (githubToken, cloneTempDir, currentSha) => {
 };
 const createCheck = async (githubToken, conclusion, title, summary, currentSha) => {
     const octokit = await github.getOctokit(githubToken);
-    octokit.rest.checks.create({
+    await octokit.rest.checks.create({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         name: "Snowmate Regression Tests",
