@@ -116,7 +116,7 @@ const cloneRepo = async (
 
 const startRun = async () => {
 	const gitData = calculateGitData()
-	if (!gitData) {
+	if (gitData === undefined) {
 		core.setFailed(
 			"Stopping Snowmate, currently our tests only run on a pull request."
 		)
