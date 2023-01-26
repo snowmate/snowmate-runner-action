@@ -13,6 +13,7 @@ const SNOWMATE_AUTH_URL = "https://auth.dev.snowmate.io"
 const SNOWMATE_API_URL = "https://api.dev.snowmate.io"
 
 const REGRESSIONS_ROUTE = "regressions"
+const SNOWMATE_REPORT_FILE_PATH = "/tmp/snowmate_result.md"
 
 const createSnowmateAccessToken = async (clientId: string, secret: string) => {
 	const url = `${SNOWMATE_AUTH_URL}/identity/resources/auth/v1/api-token`
@@ -82,7 +83,7 @@ const runRunner = async (
 	} finally {
 		let summary
 		try {
-			summary = fs.readFileSync("/tmp/snowmate_result.md", {
+			summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
 				encoding: "utf-8",
 			})
 		} catch {
@@ -157,7 +158,7 @@ const startRun = async () => {
 	const gitData = calculateGitData()
 	if (gitData === undefined) {
 		core.setFailed(
-			"Stopping Snowmate, currently our tests only run on a pull request."
+			"Stopping Snowmate, currently our tests only run on pull requests."
 		)
 		return
 	}

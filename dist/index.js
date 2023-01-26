@@ -26004,6 +26004,7 @@ const SNOWMATE_APP_URL = "https://app.dev.snowmate.io";
 const SNOWMATE_AUTH_URL = "https://auth.dev.snowmate.io";
 const SNOWMATE_API_URL = "https://api.dev.snowmate.io";
 const REGRESSIONS_ROUTE = "regressions";
+const SNOWMATE_REPORT_FILE_PATH = "/tmp/snowmate_result.md";
 const createSnowmateAccessToken = async (clientId, secret) => {
     const url = `${SNOWMATE_AUTH_URL}/identity/resources/auth/v1/api-token`;
     const { data } = await axios_1.default.post(url, { clientId, secret }, {
@@ -26062,7 +26063,7 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber) => {
     finally {
         let summary;
         try {
-            summary = fs.readFileSync("/tmp/snowmate_result.md", {
+            summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
                 encoding: "utf-8",
             });
         }
@@ -26112,7 +26113,7 @@ const cloneRepo = async (dir, baseBranch, baseCommit, githubToken) => {
 const startRun = async () => {
     const gitData = calculateGitData();
     if (gitData === undefined) {
-        core.setFailed("Stopping Snowmate, currently our tests only run on a pull request.");
+        core.setFailed("Stopping Snowmate, currently our tests only run on pull requests.");
         return;
     }
     const githubToken = core.getInput("github-token");
