@@ -6,35 +6,57 @@ import * as path from "path"
 import * as os from "os"
 import * as fs from "fs"
 import http from "isomorphic-git/http/node"
+import axios from "axios"
 
 const SNOWMATE_APP_URL = "https://app.dev.snowmate.io"
+const SNOWMATE_AUTH_URL = "https://auth.dev.snowmate.io"
+const SNOWMATE_API_URL = "https://api.dev.snowmate.io"
+
 const REGRESSIONS_ROUTE = "regressions"
+
+const createSnowmateAccessToken = async (clientId: string, secret: string) => {
+	const url = `${SNOWMATE_AUTH_URL}/identity/resources/auth/v1/api-token`
+	const { data } = await axios.post<{ accessToken: string }>(
+		url,
+		{ clientId, secret },
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+		}
+	)
+	return data.accessToken
+}
+
 const calculateGitData = () => {
 	let beforeBranch
 	let beforeCommit
 	let currentSha
+	let pullRequestNumber
 	switch (github.context.eventName) {
 	case "pull_request": {
 		const pullRequest = github.context.payload.pull_request
 		beforeBranch = pullRequest?.base.ref
 		beforeCommit = pullRequest?.base.sha
 		currentSha = pullRequest?.head.sha
+		pullRequestNumber = pullRequest?.number
 		break
 	}
 	default: {
 		return undefined
 	}
 	}
-	return { beforeBranch, beforeCommit, currentSha }
+	return { beforeBranch, beforeCommit, currentSha, pullRequestNumber }
 }
 
 const runRunner = async (
-	githubToken: string,
 	cloneTempDir: string,
-	currentSha: string
+	currentSha: string,
+	pullRequestNumber: number
 ) => {
-	let conclusion = ""
-	let title = ""
+	let state = ""
+	let description = ""
 
 	const projectPath = core.getInput("project-path")
 	const projectID = core.getInput("project-id")
@@ -45,16 +67,17 @@ const runRunner = async (
 	const rootDir = process.env.GITHUB_WORKSPACE
 	const workflowRunID = github.context.runId
 	const detailsURL = `${SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
-	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir}` //--details-url ${detailsURL}
+	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`
+	const accessToken = await createSnowmateAccessToken(clientID, secretKey)
 	try {
 		const result = child_process.execSync(runnerCommand, { encoding: "utf-8" })
-		conclusion = "success"
-		title = "All tests successfully passed"
+		state = "success"
+		description = "All tests successfully passed"
 		console.log(result)
 	} catch (e) {
 		const err = e as Error & { stdout: string }
-		conclusion = "failure"
-		title = "One or more tests had failed"
+		state = "failure"
+		description = "One or more tests had failed"
 		console.log(err.stdout)
 	} finally {
 		let summary
@@ -65,39 +88,41 @@ const runRunner = async (
 		} catch {
 			summary = ""
 		}
-		await createCheck(
-			githubToken,
-			conclusion,
-			title,
-			summary,
-			currentSha,
-			detailsURL
+		await createCommitStatus(
+			{
+				owner: github.context.repo.owner,
+				repo: github.context.repo.repo,
+				sha: currentSha,
+				state,
+				description,
+				detailsURL,
+				pullRequestNumber,
+				summary,
+			},
+			accessToken
 		)
 	}
 }
 
-const createCheck = async (
-	githubToken: string,
-	conclusion: string,
-	title: string,
-	summary: string,
-	currentSha: string,
+export type StatusRequest = {
+	owner: string
+	repo: string
+	sha: string
 	detailsURL: string
+	state: string
+	description: string
+	summary: string
+	pullRequestNumber: number
+}
+
+const createCommitStatus = async (
+	statusRequest: StatusRequest,
+	accessToken: string
 ) => {
-	console.log(detailsURL)
-	const octokit = await github.getOctokit(githubToken)
-	await octokit.rest.checks.create({
-		owner: github.context.repo.owner,
-		repo: github.context.repo.repo,
-		name: "Snowmate Regressions",
-		head_sha: currentSha,
-		status: "completed",
-		external_id: "snowmate-tests",
-		details_url: detailsURL,
-		conclusion: conclusion,
-		output: {
-			title,
-			summary,
+	const url = `${SNOWMATE_API_URL}/github-events/api/status`
+	await axios.post(url, statusRequest, {
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
 		},
 	})
 }
@@ -146,7 +171,11 @@ const startRun = async () => {
 			gitData.beforeCommit,
 			githubToken
 		)
-		await runRunner(githubToken, tempDir, gitData.currentSha)
+		await runRunner(
+			tempDir,
+			gitData.currentSha,
+			gitData.pullRequestNumber || -1
+		)
 	} catch (e) {
 		console.error(e)
 	} finally {
