@@ -56,13 +56,14 @@ const runRunner = async (
 	currentSha: string,
 	pullRequestNumber: number
 ) => {
-	let state = ""
-	let description = ""
+	let state = "success"
+	let description = "All tests successfully passed"
 
 	const projectPath = core.getInput("project-path")
 	const projectID = core.getInput("project-id")
 	const clientID = core.getInput("client-id")
 	const secretKey = core.getInput("secret-key")
+	const NO_TESTS_STATUS_CODE = 5
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
@@ -72,13 +73,15 @@ const runRunner = async (
 	const accessToken = await createSnowmateAccessToken(clientID, secretKey)
 	try {
 		const result = child_process.execSync(runnerCommand, { encoding: "utf-8" })
-		state = "success"
-		description = "All tests successfully passed"
+
 		console.log(result)
 	} catch (e) {
-		const err = e as Error & { stdout: string }
-		state = "failure"
-		description = "One or more tests had failed"
+		const err = e as Error & { stdout: string; status: number }
+		if (err.status !== NO_TESTS_STATUS_CODE) {
+			state = "failure"
+			description = "One or more tests had failed"
+		}
+
 		console.log(err.stdout)
 	} finally {
 		let summary
