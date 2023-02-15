@@ -15,8 +15,8 @@ const SNOWMATE_API_URL = "https://api.dev.snowmate.io"
 const REGRESSIONS_ROUTE = "regressions"
 const SNOWMATE_REPORT_FILE_PATH = "/tmp/snowmate_result.md"
 
-const createSnowmateAccessToken = async (clientId: string, secret: string) => {
-	const url = `${SNOWMATE_AUTH_URL}/identity/resources/auth/v1/api-token`
+const createSnowmateAccessToken = async (authURL: string, clientId: string, secret: string) => {
+	const url = `${authURL}/identity/resources/auth/v1/api-token`
 	const { data } = await axios.post<{ accessToken: string }>(
 		url,
 		{ clientId, secret },
@@ -63,14 +63,27 @@ const runRunner = async (
 	const projectID = core.getInput("project-id")
 	const clientID = core.getInput("client-id")
 	const secretKey = core.getInput("secret-key")
+	const apiURL = core.getInput("api-url")
+	const authURL = core.getInput("auth-url")
+	const appURL = core.getInput("app-url")
+
 	const NO_TESTS_STATUS_CODE = 5
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
 	const workflowRunID = github.context.runId
-	const detailsURL = `${SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
-	const runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`
-	const accessToken = await createSnowmateAccessToken(clientID, secretKey)
+	const detailsURL = `${appURL ? appURL : SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
+	let runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`
+
+	if(apiURL) {
+		runnerCommand = `${runnerCommand} --api-url ${apiURL}`
+	}
+
+	if(authURL) {
+		runnerCommand = `${runnerCommand} --auth-url ${authURL}`
+	}
+
+	const accessToken = await createSnowmateAccessToken(authURL ? authURL : SNOWMATE_AUTH_URL, clientID, secretKey)
 	try {
 		const result = child_process.execSync(runnerCommand, { encoding: "utf-8" })
 
@@ -93,6 +106,7 @@ const runRunner = async (
 			summary = ""
 		}
 		await createCommitStatus(
+			apiURL ? apiURL : SNOWMATE_API_URL,
 			{
 				owner: github.context.repo.owner,
 				repo: github.context.repo.repo,
@@ -120,10 +134,11 @@ export type StatusRequest = {
 }
 
 const createCommitStatus = async (
+	apiURL: string,
 	statusRequest: StatusRequest,
 	accessToken: string
 ) => {
-	const url = `${SNOWMATE_API_URL}/github-events/api/status`
+	const url = `${apiURL}/github-events/api/status`
 	await axios.post(url, statusRequest, {
 		headers: {
 			Authorization: `Bearer ${accessToken}`,

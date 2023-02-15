@@ -1,25 +1,34 @@
-name: "Snowmate Runner"
-author: "Snowmate"
-description: "Snowmate Runner"
+name: 'Snowmate Runner'
+author: 'Snowmate'
+description: 'Snowmate Runner'
 inputs:
   github-token:
-    description: "GitHub Token"
+    description: 'GitHub Token'
     required: true
   project-path:
-    description: "Project Path"
+    description: 'Project Path'
     required: true
   project-id:
-    description: "Project ID"
+    description: 'Project ID'
     required: true
   client-id:
-    description: "Client ID"
+    description: 'Client ID'
     required: true
   secret-key:
-    description: "Secret Key"
+    description: 'Secret Key'
     required: true
+  api-url:
+    description: 'API URL'
+    required: false
+  auth-url:
+    description: 'Auth URL'
+    required: false
+  app-url:
+    description: 'App URL'
+    required: false
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: 'node16'
+  main: 'dist/index.js'
 branding:
-  icon: "target"
-  color: "blue"
+  icon: 'target'
+  color: 'blue'
