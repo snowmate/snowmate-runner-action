@@ -73,7 +73,7 @@ const runRunner = async (
 	const rootDir = process.env.GITHUB_WORKSPACE
 	const workflowRunID = github.context.runId
 	const detailsURL = `${appURL ? appURL : SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
-	let runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL}`
+	let runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --show-all -s`
 
 	if(apiURL) {
 		runnerCommand = `${runnerCommand} --api-url ${apiURL}`
