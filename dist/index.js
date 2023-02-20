@@ -26045,12 +26045,13 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber) => {
     const apiURL = core.getInput("api-url");
     const authURL = core.getInput("auth-url");
     const appURL = core.getInput("app-url");
+    const additionalFlags = core.getInput("additional-flags");
     const NO_TESTS_STATUS_CODE = 5;
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
     const workflowRunID = github.context.runId;
     const detailsURL = `${appURL ? appURL : SNOWMATE_APP_URL}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`;
-    let runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --show-all -s`;
+    let runnerCommand = `cd ${projectPath} && python3 -m pytest --snowmate --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} ${additionalFlags || ""}`;
     if (apiURL) {
         runnerCommand = `${runnerCommand} --api-url ${apiURL}`;
     }

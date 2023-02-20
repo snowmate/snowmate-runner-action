@@ -26,6 +26,9 @@ inputs:
   app-url:
     description: 'App URL'
     required: false
+  additional-flags:
+    description: 'Additional Flags'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
