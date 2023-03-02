@@ -71,7 +71,7 @@ const runRunner = async (
 	const NO_TESTS_STATUS_CODE = 5
 	const PROJECT_DOES_NOT_EXIST_STATUS_CODE = 255
 
-	let isProjectExists = true
+	let doesProjectExist = true
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
@@ -97,7 +97,7 @@ const runRunner = async (
 
 
 		if (err.status === PROJECT_DOES_NOT_EXIST_STATUS_CODE) {
-			isProjectExists = false
+			doesProjectExist = false
 			core.setFailed(`Stopping Snowmate, the Project ID: ${projectID} does not exist. Please make sure to enter a valid Project ID.`)
 		}
 
@@ -106,12 +106,12 @@ const runRunner = async (
 			description = "One or more tests had failed"
 		}
 
-		if (isProjectExists) {
+		if (doesProjectExist) {
 			console.log(err.stdout)
 		}
 
 	} finally {
-		if (isProjectExists) {
+		if (doesProjectExist) {
 			let summary
 			try {
 				summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
