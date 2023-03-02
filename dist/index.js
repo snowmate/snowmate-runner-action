@@ -26047,6 +26047,8 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber) => {
     const appURL = core.getInput("app-url");
     const additionalFlags = core.getInput("additional-flags");
     const NO_TESTS_STATUS_CODE = 5;
+    const PROJECT_DOES_NOT_EXIST_STATUS_CODE = 255;
+    let isProjectExists = true;
     const tempProjectDir = `${cloneTempDir}/${projectPath}`;
     const rootDir = process.env.GITHUB_WORKSPACE;
     const workflowRunID = github.context.runId;
@@ -26065,32 +26067,40 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber) => {
     }
     catch (e) {
         const err = e;
-        if (err.status !== NO_TESTS_STATUS_CODE) {
+        if (err.status === PROJECT_DOES_NOT_EXIST_STATUS_CODE) {
+            isProjectExists = false;
+            core.setFailed(`Stopping Snowmate, the Project ID: ${projectID} does not exist. Please make sure to enter a valid Project ID.`);
+        }
+        else if (err.status !== NO_TESTS_STATUS_CODE) {
             state = "failure";
             description = "One or more tests had failed";
         }
-        console.log(err.stdout);
+        if (isProjectExists) {
+            console.log(err.stdout);
+        }
     }
     finally {
-        let summary;
-        try {
-            summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
-                encoding: "utf-8",
-            });
+        if (isProjectExists) {
+            let summary;
+            try {
+                summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
+                    encoding: "utf-8",
+                });
+            }
+            catch {
+                summary = "";
+            }
+            await createCommitStatus(apiURL ? apiURL : SNOWMATE_API_URL, {
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                sha: currentSha,
+                state,
+                description,
+                detailsURL,
+                pullRequestNumber,
+                summary,
+            }, accessToken);
         }
-        catch {
-            summary = "";
-        }
-        await createCommitStatus(apiURL ? apiURL : SNOWMATE_API_URL, {
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            sha: currentSha,
-            state,
-            description,
-            detailsURL,
-            pullRequestNumber,
-            summary,
-        }, accessToken);
     }
 };
 const createCommitStatus = async (apiURL, statusRequest, accessToken) => {
