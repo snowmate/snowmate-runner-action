@@ -69,6 +69,9 @@ const runRunner = async (
 	const additionalFlags = core.getInput("additional-flags")
 
 	const NO_TESTS_STATUS_CODE = 5
+	const PROJECT_DOES_NOT_EXIST_STATUS_CODE = 255
+
+	let doesProjectExist = true
 
 	const tempProjectDir = `${cloneTempDir}/${projectPath}`
 	const rootDir = process.env.GITHUB_WORKSPACE
@@ -91,35 +94,48 @@ const runRunner = async (
 		console.log(result)
 	} catch (e) {
 		const err = e as Error & { stdout: string; status: number }
-		if (err.status !== NO_TESTS_STATUS_CODE) {
+
+
+		if (err.status === PROJECT_DOES_NOT_EXIST_STATUS_CODE) {
+			doesProjectExist = false
+			core.setFailed(`Stopping Snowmate, the Project ID: ${projectID} does not exist. Please make sure to enter a valid Project ID.`)
+		}
+
+		else if (err.status !== NO_TESTS_STATUS_CODE) {
 			state = "failure"
 			description = "One or more tests had failed"
 		}
 
-		console.log(err.stdout)
-	} finally {
-		let summary
-		try {
-			summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
-				encoding: "utf-8",
-			})
-		} catch {
-			summary = ""
+		if (doesProjectExist) {
+			console.log(err.stdout)
 		}
-		await createCommitStatus(
-			apiURL ? apiURL : SNOWMATE_API_URL,
-			{
-				owner: github.context.repo.owner,
-				repo: github.context.repo.repo,
-				sha: currentSha,
-				state,
-				description,
-				detailsURL,
-				pullRequestNumber,
-				summary,
-			},
-			accessToken
-		)
+
+	} finally {
+		if (doesProjectExist) {
+			let summary
+			try {
+				summary = fs.readFileSync(SNOWMATE_REPORT_FILE_PATH, {
+					encoding: "utf-8",
+				})
+			} catch {
+				summary = ""
+			}
+			await createCommitStatus(
+				apiURL ? apiURL : SNOWMATE_API_URL,
+				{
+					owner: github.context.repo.owner,
+					repo: github.context.repo.repo,
+					sha: currentSha,
+					state,
+					description,
+					detailsURL,
+					pullRequestNumber,
+					summary,
+				},
+				accessToken
+			)
+		}
+
 	}
 }
 
