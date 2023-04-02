@@ -1,6 +1,6 @@
 {
   "name": "snowamte-runner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "snowamte-runner",
   "main": "main.ts",
   "scripts": {
