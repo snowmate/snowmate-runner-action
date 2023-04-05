@@ -107,7 +107,7 @@ const runRunner = async (
 	const detailsURL = `${
 		appURL ? appURL : SNOWMATE_APP_URL
 	}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
-	let runnerCommand = `cd ${projectPath} && snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} ${
+	let runnerCommand = `cd ${projectPath} && snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestNumber} ${
 		additionalFlags || ""
 	}`
 
