@@ -25842,7 +25842,7 @@ const calculateGitData = () => {
             beforeBranch = pullRequest?.base.ref;
             beforeCommit = pullRequest?.base.sha;
             currentSha = pullRequest?.head.sha;
-            pullRequestNumber = pullRequest?.number;
+            pullRequestNumber = pullRequest?.id;
             break;
         }
         default: {
