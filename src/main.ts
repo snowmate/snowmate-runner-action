@@ -40,20 +40,22 @@ const calculateGitData = () => {
 	let beforeCommit
 	let currentSha
 	let pullRequestNumber
+	let pullRequestID
 	switch (github.context.eventName) {
 	case "pull_request": {
 		const pullRequest = github.context.payload.pull_request
 		beforeBranch = pullRequest?.base.ref
 		beforeCommit = pullRequest?.base.sha
 		currentSha = pullRequest?.head.sha
-		pullRequestNumber = pullRequest?.id
+		pullRequestNumber = pullRequest?.number
+		pullRequestID = pullRequest?.id
 		break
 	}
 	default: {
 		return undefined
 	}
 	}
-	return { beforeBranch, beforeCommit, currentSha, pullRequestNumber }
+	return { beforeBranch, beforeCommit, currentSha, pullRequestNumber, pullRequestID}
 }
 
 const getProjectSettings = async (
@@ -80,7 +82,8 @@ const getProjectSettings = async (
 const runRunner = async (
 	cloneTempDir: string,
 	currentSha: string,
-	pullRequestNumber: number
+	pullRequestNumber: number,
+	pullRequestID: number
 ) => {
 	let state = "success"
 	let description = "All tests successfully passed"
@@ -113,7 +116,7 @@ const runRunner = async (
 		extraCommand += " && "
 	}
 
-	let runnerCommand = `cd ${projectPath} && ${extraCommand || ""} snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestNumber} ${
+	let runnerCommand = `cd ${projectPath} && ${extraCommand || ""} snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestID} ${
 		additionalFlags || ""
 	}`
 
@@ -260,7 +263,8 @@ const startRun = async () => {
 		await runRunner(
 			tempDir,
 			gitData.currentSha,
-			gitData.pullRequestNumber || -1
+			gitData.pullRequestNumber || -1,
+			gitData.pullRequestID || -1,
 		)
 	} catch (e) {
 		console.error(e)

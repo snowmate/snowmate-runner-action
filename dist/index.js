@@ -25836,20 +25836,22 @@ const calculateGitData = () => {
     let beforeCommit;
     let currentSha;
     let pullRequestNumber;
+    let pullRequestID;
     switch (github.context.eventName) {
         case "pull_request": {
             const pullRequest = github.context.payload.pull_request;
             beforeBranch = pullRequest?.base.ref;
             beforeCommit = pullRequest?.base.sha;
             currentSha = pullRequest?.head.sha;
-            pullRequestNumber = pullRequest?.id;
+            pullRequestNumber = pullRequest?.number;
+            pullRequestID = pullRequest?.id;
             break;
         }
         default: {
             return undefined;
         }
     }
-    return { beforeBranch, beforeCommit, currentSha, pullRequestNumber };
+    return { beforeBranch, beforeCommit, currentSha, pullRequestNumber, pullRequestID };
 };
 const getProjectSettings = async (projectID, accessToken, apiURL) => {
     const res = await axios_1.default.get(`${apiURL}/${PROJECTS_ROUTE}/${projectID}`, {
@@ -25868,7 +25870,7 @@ const getProjectSettings = async (projectID, accessToken, apiURL) => {
         return {};
     }
 };
-const runRunner = async (cloneTempDir, currentSha, pullRequestNumber) => {
+const runRunner = async (cloneTempDir, currentSha, pullRequestNumber, pullRequestID) => {
     let state = "success";
     let description = "All tests successfully passed";
     const projectPath = core.getInput("project-path");
@@ -25891,7 +25893,7 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber) => {
     if (extraCommand) {
         extraCommand += " && ";
     }
-    let runnerCommand = `cd ${projectPath} && ${extraCommand || ""} snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestNumber} ${additionalFlags || ""}`;
+    let runnerCommand = `cd ${projectPath} && ${extraCommand || ""} snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestID} ${additionalFlags || ""}`;
     if (apiURL) {
         runnerCommand = `${runnerCommand} --api-url ${apiURL}`;
     }
@@ -25986,7 +25988,7 @@ const startRun = async () => {
     try {
         tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "snow-"));
         await cloneRepo(tempDir, gitData.beforeBranch, gitData.beforeCommit, githubToken);
-        await runRunner(tempDir, gitData.currentSha, gitData.pullRequestNumber || -1);
+        await runRunner(tempDir, gitData.currentSha, gitData.pullRequestNumber || -1, gitData.pullRequestID || -1);
     }
     catch (e) {
         console.error(e);
