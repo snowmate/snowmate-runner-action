@@ -32,6 +32,9 @@ inputs:
   additional-flags:
     description: 'Additional Flags'
     required: false
+  extra-command:
+    description: 'Extra Command'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
