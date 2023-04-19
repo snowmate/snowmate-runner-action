@@ -25881,6 +25881,7 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber, pullReques
     const authURL = core.getInput("auth-url");
     const appURL = core.getInput("app-url");
     const additionalFlags = core.getInput("additional-flags");
+    const PypiURL = core.getInput("pypi-url");
     let extraCommand = core.getInput("extra-command");
     const disableStatusCreation = core.getInput("disable-status-creation").toLowerCase() === "true";
     const NO_TESTS_STATUS_CODE = 5;
@@ -25899,6 +25900,9 @@ const runRunner = async (cloneTempDir, currentSha, pullRequestNumber, pullReques
     }
     if (authURL) {
         runnerCommand = `${runnerCommand} --auth-url ${authURL}`;
+    }
+    if (PypiURL) {
+        runnerCommand = `${runnerCommand} --pypi-url ${PypiURL}`;
     }
     const accessToken = await createSnowmateAccessToken(authURL ? authURL : SNOWMATE_AUTH_URL, clientID, secretKey);
     try {

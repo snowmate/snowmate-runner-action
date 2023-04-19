@@ -96,6 +96,7 @@ const runRunner = async (
 	const authURL = core.getInput("auth-url")
 	const appURL = core.getInput("app-url")
 	const additionalFlags = core.getInput("additional-flags")
+	const PypiURL = core.getInput("pypi-url")
 	let extraCommand = core.getInput("extra-command")
 	const disableStatusCreation: boolean =
 		core.getInput("disable-status-creation").toLowerCase() === "true"
@@ -127,6 +128,11 @@ const runRunner = async (
 	if (authURL) {
 		runnerCommand = `${runnerCommand} --auth-url ${authURL}`
 	}
+
+	if (PypiURL) {
+		runnerCommand = `${runnerCommand} --pypi-url ${PypiURL}`
+	}
+
 
 	const accessToken = await createSnowmateAccessToken(
 		authURL ? authURL : SNOWMATE_AUTH_URL,
