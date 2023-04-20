@@ -35,9 +35,9 @@ inputs:
   extra-command:
     description: 'Extra Command'
     required: false
-pypi-url:
-  description: 'PyPI URL'
-  required: false'
+  pypi-url:
+    description: 'PyPI URL'
+    required: false'
 runs:
   using: 'node16'
   main: 'dist/index.js'
