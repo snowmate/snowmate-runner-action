@@ -32,12 +32,12 @@ inputs:
   additional-flags:
     description: 'Additional Flags'
     required: false
-  extra-command:
-    description: 'Extra Command'
+  pre-run-command:
+    description: 'Pre Run Command'
     required: false
   pypi-url:
     description: 'PyPI URL'
-    required: false'
+    required: false
 runs:
   using: 'node16'
   main: 'dist/index.js'
