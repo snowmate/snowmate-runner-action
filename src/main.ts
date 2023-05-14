@@ -55,7 +55,13 @@ const calculateGitData = () => {
 		return undefined
 	}
 	}
-	return { beforeBranch, beforeCommit, currentSha, pullRequestNumber, pullRequestID}
+	return {
+		beforeBranch,
+		beforeCommit,
+		currentSha,
+		pullRequestNumber,
+		pullRequestID,
+	}
 }
 
 const getProjectSettings = async (
@@ -97,7 +103,7 @@ const runRunner = async (
 	const appURL = core.getInput("app-url")
 	const additionalFlags = core.getInput("additional-flags")
 	const PypiURL = core.getInput("pypi-url")
-	let extraCommand = core.getInput("extra-command")
+	const preRunCommand = core.getInput("pre-run-command")
 	const disableStatusCreation: boolean =
 		core.getInput("disable-status-creation").toLowerCase() === "true"
 
@@ -113,11 +119,9 @@ const runRunner = async (
 		appURL ? appURL : SNOWMATE_APP_URL
 	}/${REGRESSIONS_ROUTE}/${projectID}/${workflowRunID}`
 
-	if (extraCommand){
-		extraCommand += " && "
-	}
-
-	let runnerCommand = `cd ${projectPath} && ${extraCommand || ""} snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestID} ${
+	let runnerCommand = `cd ${projectPath} && ${
+		preRunCommand || ""
+	} snowmate_runner run --project-id ${projectID} --client-id ${clientID} --secret-key ${secretKey} --workflow-run-id ${workflowRunID} --cloned-repo-dir ${tempProjectDir} --project-root-path ${rootDir} --details-url ${detailsURL} --pull-request-number ${pullRequestID} ${
 		additionalFlags || ""
 	}`
 
@@ -132,7 +136,6 @@ const runRunner = async (
 	if (PypiURL) {
 		runnerCommand = `${runnerCommand} --pypi-url ${PypiURL}`
 	}
-
 
 	const accessToken = await createSnowmateAccessToken(
 		authURL ? authURL : SNOWMATE_AUTH_URL,
@@ -270,7 +273,7 @@ const startRun = async () => {
 			tempDir,
 			gitData.currentSha,
 			gitData.pullRequestNumber || -1,
-			gitData.pullRequestID || -1,
+			gitData.pullRequestID || -1
 		)
 	} catch (e) {
 		console.error(e)
