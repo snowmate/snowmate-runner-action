@@ -243,12 +243,19 @@ const cloneRepo = async (
 			return { username: "token", password: githubToken }
 		},
 	})
-	await git.checkout({
-		fs,
-		dir,
-		ref: baseCommit,
-		force: true,
-	})
+	try
+	{
+		await git.checkout({
+			fs,
+			dir,
+			ref: baseCommit,
+			force: true,
+		})
+	}
+	catch (e)
+	{
+		console.log(`Could not checkout ${baseCommit} on branch ${baseBranch}`)
+	}
 }
 
 const startRun = async () => {
